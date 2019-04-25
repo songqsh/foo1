@@ -1,2 +1,2 @@
-# foo_1
+# foo1
 for fun
