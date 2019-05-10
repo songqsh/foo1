@@ -3,3 +3,4 @@
 - linear algebra with tensorflow - [ipynb](src/linalg_tf.ipynb)
 - linear regression: linear algebra approach and machine learning approach - [ipynb](src/linreg.ipynb)
 - linear regression with pytorch - [ipynb](src/linreg_torch_v01.ipynb)
+- gambbler's problem by reinforcement learning - [ipynb](src/gambler_v01.ipynb)
