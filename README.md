@@ -5,3 +5,4 @@
 - linear regression with pytorch - [ipynb](src/linreg_torch_v01.ipynb)
 - gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
 - cliff walking: Sarsa/Q-learning - [ipynb](src/cliff_v01.ipynb)
+- dynamic programing on HJB with Cauchy data - [ipynb](src/dp_hjb_cauchy.ipynb)
