@@ -1,0 +1,212 @@
+\documentclass{article}
+\usepackage[pagebackref,letterpaper=true,colorlinks=true,pdfpagemode=none,urlcolor=blue,linkcolor=blue,citecolor=blue,pdfstartview=FitH]{hyperref}
+
+\usepackage{amsmath,amsfonts}
+\usepackage{graphicx}
+\usepackage{color}
+
+
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{6.0in}
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+
+
+\setlength{\parindent}{0in}
+\setlength{\parskip}{5px}
+
+%\input{macrosblog}
+
+%%%%%%%%% For wordpress conversion
+
+\def\more{}
+
+\newif\ifblog
+\newif\iftex
+\blogfalse
+\textrue
+
+
+\usepackage{ulem}
+\def\em{\it}
+\def\emph#1{\textit{#1}}
+
+\def\image#1#2#3{\begin{center}\includegraphics[#1pt]{#3}\end{center}}
+
+\let\hrefnosnap=\href
+
+\newenvironment{btabular}[1]{\begin{tabular} {#1}}{\end{tabular}}
+
+\newenvironment{red}{\color{red}}{}
+\newenvironment{green}{\color{green}}{}
+\newenvironment{blue}{\color{blue}}{}
+
+%%%%%%%%% Typesetting shortcuts
+
+\def\B{\{0,1\}}
+\def\xor{\oplus}
+
+\def\P{{\mathbb P}}
+\def\E{{\mathbb E}}
+\def\var{{\bf Var}}
+
+\def\N{{\mathbb N}}
+\def\Z{{\mathbb Z}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\def\Q{{\mathbb Q}}
+\def\eps{{\epsilon}}
+
+\def\bz{{\bf z}}
+
+\def\true{{\tt true}}
+\def\false{{\tt false}}
+
+%%%%%%%%% Theorems and proofs
+
+\newtheorem{exercise}{Exercise}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{example}{Example}
+\newtheorem{remark}[theorem]{Remark}
+\newenvironment{proof}{\noindent {\sc Proof:}}{$\Box$} %\medskip} 
+%%%%%%%%% I added
+\newtheorem{assumption}{Assumption}
+%%%%%%%%
+
+\begin{document}
+%title:  The simplest LQG problem
+We are going to provide an explicit solution for the LQG problem 
+in one dimensional setting. This will go over HJB and Ricatti equations.
+
+\more
+
+\section {Problem setting}
+We fix 
+$$\ell (a)  = \frac 1 2 a^{2} \hbox{ and } g(x) = \frac 1 2 x^{2}.$$
+The controlled process is given by
+$$d X_{t} = q(t) dt + dW(t),$$
+where $q(\cdot)$ is an adapted control process 
+and $W(\cdot)$ is a standard Brownian motion.
+
+The value function is given by
+$$v(t, x) = \sup_{q(\cdot)} \mathbb E^{x, t} 
+[ \int_{t}^{T} - \ell (q(s)) ds - g(X(T))].$$
+
+
+
+Our goal is to solve for $(v, \hat q(\cdot))$, where $\hat q(\cdot)$ is the optimal control.
+
+\section{Analysis}
+The first attempt is to write down HJB equation and try to solve it due
+to the following verification theorem.
+\begin{proposition}
+ \label{p:170810-01}
+\end{proposition}
+If $u \in C^{2,1}$ solves HJB(u) equation
+$$  \left\{
+\begin{array}
+ {ll}
+ \partial_{t} u + \frac 1 2 \partial_{xx} u + H(\partial_{x} u)= 0, &
+ \hbox{ on } 
+\mathbb R\times (0, T), 
+\\
+u(T, x) = - g(x) &
+\hbox{ on } \mathbb R,
+\end{array} \right .
+$$
+then $u = v$ and $\hat q(t) = \partial_{x} u (X_{t}, t)$. In the above, $H$ is
+the Legendre transform of $\ell$, i.e. 
+$$H(p) = \sup_{q} (q \cdot p - \ell(q)) = \frac 1 2 p^{2}.$$
+
+\begin{proof}
+ later ??
+\end{proof}
+
+Next, we shall search for $\partial_{x} u$. To do that, we differentiate 
+HJB(u) by $\partial_{x}$, 
+and substitute $w = \partial_{x} u$ to obtain HJB(w), 
+$$ \left\{
+\begin{array}
+ {ll}
+ \partial_{t} w + \frac 1 2 \partial_{xx} w + w \partial_{x}w = 0,  
+ &\hbox{ on } 
+\mathbb R\times (0, T), 
+\\
+w(T, x) = - g'(x) &\hbox{ on } \mathbb R,
+\end{array}
+\right.
+$$
+The above equation can lead to adjoint process in terms of Backward SDE, 
+which is crucial in stochastic maximum principle. 
+However, we shall not get into BSDE in this problem, and use it directly in
+this below.
+
+From the form of $w(T, x) = - x$, we bravely guess $$w(t, x) = \phi(t) x$$ for 
+some negative $\phi(t)$, and plug into HJB(w)
+$$\phi' + \phi^{2}  = 0, \hbox{ on } (0, T), \hbox{ and } \phi(T) = -1.$$
+This is called Ricatti equation. We can explicitly write for $\phi$ and $w$ as
+\begin{equation}
+ \label{eq:170810-phi}
+\phi(t) = - \frac{1}{1 + T -t}, \hbox{ and } w(x, t) = - \frac{x}{1 + T -t } = \partial_{x} u.
+\end{equation}
+This means $\phi$ is explicitly solvable, 
+but we do not need the explicit form until the end. Starting from $w = \phi x$, 
+we can write $u$ by
+$$u(x, t) = \psi(t) + \int_{0}^{x} w(y, t) dy = \psi(t) + \frac 1 2 \phi(t) x^{2}.$$
+Plugging this form into HJB, it yields
+$$\psi'(t) + \frac 1 2 \phi(t) = 0, \hbox{ and } \psi(T) = 0.$$
+Now we invoke explicit $\phi$ to obtain $\psi$ as
+\begin{equation}
+ \label{eq:170810-psi}
+ \psi(t) = - \frac 1 2 \ln ( 1 + T - t). 
+\end{equation}
+
+
+
+One can easily verify verification theorem, and reach the following answer.
+\begin{proposition}
+ 
+\end{proposition}
+Let $\tau:= T - t$. Then, the value and optimal control are given as
+$$v(x, t) =  \frac{- x^{2}}{2(1+ \tau)} - \frac 1 2 \ln (1 + \tau), 
+\ 
+\hat q(t) = \frac{-1}{1+ \tau} \hat X_{t}.$$ 
+In particular, the optimal trajectory 
+$\hat X$ follows O-U process, i.e. 
+$$d \hat X_{t} = \frac{-1}{1+ \tau} \hat X_{t} dt + dW_{t}, \ \hat X_{0} = x.$$
+Therefore, $\hat X_{T}^{x, 0} \to 0$ in $L^{2}$ if $T \to \infty$, i.e.
+$$\lim_{T\to \infty}  \mathbb E^{x,0} (\hat X_{T})^{2} = 0.$$
+See Example 1 of 
+\href{https://01law.wordpress.com/2017/07/25/ornstein-uhlenbeck-process/#more-883}{[here]}
+about O-U process.
+
+\begin{remark}
+ 
+\end{remark}
+\begin{enumerate}
+ \item HJB(w) is Burger's equation.
+\end{enumerate}
+
+{\bf Ex.}
+
+Consider controlled process 
+$$dX_{t} = 2 \lambda q_{t} dt + \sigma dW_{t}$$
+and value function
+$$v(t,x) = \inf_{q} \mathbb E^{t,x} \Big[\int_{t}^{T} q_{t}^{2} dt + c X_{T}^{2} \Big]. $$
+Given that $\lambda, \sigma, c>0$, prove that
+$$v(t, x) = \frac{cx^{2}}{1+4 \lambda^{2} c (T-t)} + \sigma^{2} c \ln (1+4 \lambda^{2} c (T-t))$$
+and 
+$$q^{*} (t,x) = - \frac{2\lambda c x}{1+4 c\lambda^{2} (T-t) }.$$
+
+
+
+
+
+
+
+\end{document}
