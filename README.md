@@ -10,4 +10,4 @@
 - 1-d dynamic programing on HJB with Cauchy data (to check above) - [ipynb](src/dp_hjb_cauchy_ex1d.ipynb)
 - other version 1-d dp-hjb-cauchy (to check above) -[ipynb](src/dp_hjb_1d.ipynb)
 - value iteration on 1d HJB with dirichlet data - [ipynb](src/value_iter_dirichlet_1d.ipynb)
-- value iteration on 1d HJB with dirichlet data with upwind scheme does not work - [ipynb](src/value_iter_hjb_upwind.ipynb.ipynb)
+- value iteration on 1d HJB with dirichlet data with upwind scheme does not work - [ipynb](src/value_iter_hjb_upwind.ipynb)
