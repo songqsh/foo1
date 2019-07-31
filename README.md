@@ -13,6 +13,6 @@
 - value iteration on 1d HJB with dirichlet data with upwind scheme does not work - [ipynb](src/value_iter_hjb_upwind.ipynb)
 - q-learning approach on  1d HJB with dirichlet data - [ipynb](src/q_learning_dirichlet_1d.ipynb)
 - gpu vs cpu performance by pytorch tensor calculation - [ipynb](src/gpu_vs_cpu.ipynb)
-- gpu vs cpu performance on MDP - [ipynb](src/gpu2cpu_mdp.ipynb)
+- gpu vs cpu performance on MDP - [ipynb](src/gpu2cpu.ipynb)
 
 
