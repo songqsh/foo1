@@ -10,7 +10,7 @@
 - 1-d dynamic programing on HJB with Cauchy data (to check above) - [ipynb](src/dp_hjb_cauchy_ex1d.ipynb)
 - Semi-explicit solution/DPP on 1-d dp-hjb-cauchy (to check above) -[ipynb](src/dp_hjb_1d_v1.ipynb)
 - value iteration on 1d HJB with dirichlet data - [ipynb](src/value_iter_dirichlet_1d_v01.ipynb)
-- value iteration on 1d HJB with dirichlet data with upwind scheme does not work - [ipynb](src/value_iter_hjb_upwind.ipynb)
+- p: value iteration on 1d HJB with dirichlet data with upwind scheme does not work - [ipynb](src/value_iter_hjb_upwind.ipynb)
 - q-learning approach on  1d HJB with dirichlet data - [ipynb](src/q_learning_dirichlet_1d.ipynb)
 - gpu vs cpu performance by pytorch tensor calculation - [ipynb](src/gpu_vs_cpu.ipynb)
 - gpu vs cpu performance on MDP - [ipynb](src/gpu2cpu.ipynb)
