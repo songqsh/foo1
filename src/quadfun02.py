@@ -14,27 +14,15 @@ import matplotlib.pyplot as plt
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        # input/output dim
-        in_dim = 1
-        out_dim = 1
+
+        # kernel
+        self.fc1 = nn.Linear(2, 1)
+        self.fc2 = lambda x: torch.tensor([x, x**2])
         
-        # kernel1
-        self.fc1 = nn.Linear(in_dim, 6)
-        self.fc2 = nn.Linear(6, 6)
-        
-        #kernel2
-        self.fc3 = nn.Linear(6, out_dim)
-        
-    def forward(self, x, m = 1):
+    def forward(self, x):        
         #layers
-        if m==1:
-            x = F.relu(self.fc1(x))
-            x = self.fc2(x)
-            x = self.fc3(x)
-        else:
-            x = F.dropout(torch.sigmoid(self.fc1(x)), p=0.5)
-            x = F.relu(self.fc2(x))
-            x = self.fc3(x)
+        x = self.fc2(x) #visible layer
+        x = self.fc1(x) #hidden layer
  
         return x
     
@@ -65,12 +53,12 @@ x_train = torch.randn(batch_size,1)
 y_train = f(x_train)
 
 
-num_epochs = 100000
+num_epochs = 10000
 
 for epoch in range(num_epochs):
 
     # Forward pass
-    outputs = net(x_train, 2)
+    outputs = net(x_train)
     loss = criterion(outputs, y_train)
     
     # Backward and optimize
@@ -81,7 +69,7 @@ for epoch in range(num_epochs):
     loss.backward()
     optimizer.step()
     
-    if (epoch+1) % 10000 == 0:
+    if (epoch+1) % 1000 == 0:
         print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 
                                                     num_epochs, loss.item()))
         
