@@ -10,19 +10,21 @@ import torch.nn as nn
 
 #import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-
-        # kernel
-        self.fc1 = nn.Linear(2, 1)
-        self.fc2 = lambda x: torch.tensor([x, x**2])
+        # input/output dim
+        in_dim = 1
+        out_dim = 1
         
-    def forward(self, x):        
+        # kernel1
+        self.fc1 = nn.Linear(in_dim, out_dim)
+        
+    def forward(self, x):
         #layers
-        x = self.fc2(x) #visible layer
-        x = self.fc1(x) #hidden layer
+        x = self.fc1(x)
  
         return x
     
@@ -30,30 +32,26 @@ class Net(nn.Module):
 #loss function 
 criterion = nn.MSELoss()
 
-#optimizer
+# target function
+f = lambda x: np.abs(x)
 
+
+
+#optimizer
 net = Net()
+learning_rate = 0.01
+optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate)
+
+
 
 # Train the model
-
-
-
-# target function
-a = 1.
-b = 2.
-c = -1.
-f = lambda x: a*x**2+b*x+c
-
-
-#training data
-
-batch_size = 1000
+batch_size = 2
 
 x_train = torch.randn(batch_size,1)
 y_train = f(x_train)
 
 
-num_epochs = 10000
+num_epochs = 1000
 
 for epoch in range(num_epochs):
 
@@ -62,24 +60,23 @@ for epoch in range(num_epochs):
     loss = criterion(outputs, y_train)
     
     # Backward and optimize
-    learning_rate = 0.001
-    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate)
 
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
     
-    if (epoch+1) % 1000 == 0:
+    if (epoch+1) % 10 == 0:
         print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 
                                                     num_epochs, loss.item()))
         
 #test
-x_ = torch.randn(100,1)
-y_ = f(x_)
-plt.scatter(x_.detach().numpy(), y_.detach().numpy(), label='true')
 
-y_pred = net(x_,2)
-plt.scatter(x_.detach().numpy(), y_pred.detach().numpy(), label='pred')
+y_ = f(x_train)
+plt.scatter(x_train.detach().numpy(), y_.detach().numpy(), label='true')
+
+x_test=torch.linspace(-2, 2, 20).resize(20,1)
+y_pred = net(x_test)
+plt.plot(x_test.detach().numpy(), y_pred.detach().numpy(), label='pred')
 
 plt.legend()
 plt.show()
