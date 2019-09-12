@@ -47,11 +47,11 @@ optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate)
 # Train the model
 batch_size = 2
 
-x_train = torch.randn(batch_size,1)
+x_train = 2*torch.rand(batch_size,1)-1
 y_train = f(x_train)
 
 
-num_epochs = 1000
+num_epochs = 10000
 
 for epoch in range(num_epochs):
 
@@ -65,7 +65,7 @@ for epoch in range(num_epochs):
     loss.backward()
     optimizer.step()
     
-    if (epoch+1) % 10 == 0:
+    if (epoch+1) % 1000 == 0:
         print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 
                                                     num_epochs, loss.item()))
         
@@ -74,7 +74,7 @@ for epoch in range(num_epochs):
 y_ = f(x_train)
 plt.scatter(x_train.detach().numpy(), y_.detach().numpy(), label='true')
 
-x_test=torch.linspace(-2, 2, 20).resize(20,1)
+x_test=torch.linspace(-1, 1, 20).reshape(20,1)
 y_pred = net(x_test)
 plt.plot(x_test.detach().numpy(), y_pred.detach().numpy(), label='pred')
 
