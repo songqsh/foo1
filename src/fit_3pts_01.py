@@ -24,13 +24,17 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(in_dim, H)
         self.fc2 = nn.Linear(H, out_dim)
         
-    def forward(self, x):
+    def forward(self, x, m = 1):
         #layers
-        x = self.fc1(x)
-        #x = F.relu(x)
-        x = F.sigmoid(x)
-        x = self.fc2(x)
- 
+        if method == 1:
+            x = self.fc1(x) 
+            x = F.sigmoid(x)
+            x = self.fc2(x)
+        else:
+            x = self.fc1(x)
+            x = F.relu(x)
+            x = self.fc2(x)
+            
         return x
     
     
@@ -53,16 +57,17 @@ optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate)
 #train data
 batch_size = 3
 #x_train = 2*torch.rand(batch_size,1)-1
-x_train = torch.tensor([-.5, 0.1, .5]).reshape(3,1)
+x_train = torch.tensor([-.5, 0., .5]).reshape(3,1)
 y_train = f(x_train)
 
 # Train the model
-num_epochs = 10000
+num_epochs = 20000
+m = 1
 
 for epoch in range(num_epochs):
 
     # Forward pass
-    outputs = net(x_train)
+    outputs = net(x_train, m)
     loss = criterion(outputs, y_train)
     
     # Backward and optimize
@@ -71,21 +76,21 @@ for epoch in range(num_epochs):
     loss.backward()
     optimizer.step()
     
-    if (epoch+1) % 1000 == 0:
+    if (epoch+1) % 2000 == 0:
         print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 
                                                     num_epochs, loss.item()))
         
 #print parameters
 #print model parameters automatically
-for p in net.parameters():
-  print(p)        
+#for p in net.parameters():
+#  print(p)        
         
 #test
 y_ = f(x_train)
 plt.scatter(x_train.detach().numpy(), y_.detach().numpy(), label='true')
 
 x_test=torch.linspace(-1, 1, 100).reshape(100,1)
-y_pred = net(x_test)
+y_pred = net(x_test, m)
 plt.plot(x_test.detach().numpy(), y_pred.detach().numpy(), label='pred')
 
 plt.legend()
