@@ -44,7 +44,7 @@ class Net(nn.Module):
 criterion = nn.MSELoss()
 
 # target function
-f = lambda x: np.abs(x)
+f = lambda x: np.abs(x)+1
 
 
 
