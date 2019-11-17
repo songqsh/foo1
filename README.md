@@ -17,5 +17,6 @@
 - q-learning approach on  1d HJB with dirichlet data - [ipynb](src/q_learning_dirichlet_1d.ipynb)
 - gpu vs cpu performance by pytorch tensor calculation - [ipynb](src/gpu_vs_cpu.ipynb)
 - gpu vs cpu performance on MDP - [ipynb](src/gpu2cpu.ipynb)
+- Pytorch: Autograd for higher order - [ipynb](src/autograd01.ipynb)
 
 
