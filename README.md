@@ -18,5 +18,6 @@
 - gpu vs cpu performance by pytorch tensor calculation - [ipynb](src/gpu_vs_cpu.ipynb)
 - gpu vs cpu performance on MDP - [ipynb](src/gpu2cpu.ipynb)
 - Pytorch: Autograd for higher order - [ipynb](src/autograd01.ipynb)
+- First order ODE by fixed point theorem - [ipynb](src/ode01.ipynb)
 
 
