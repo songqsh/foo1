@@ -2,6 +2,7 @@
 
 - linear algebra with tensorflow - [ipynb](src/linalg_tf.ipynb)
 - linear regression: linear algebra approach and machine learning approach - [ipynb](src/linreg.ipynb)
+- minimize a smooth function by pytorch optimizer - [ipynb](src/min_fun.ipynb)
 - p: linear regression with pytorch - [ipynb](src/linreg_torch_v01.ipynb)
 - learning quadratic function by nn - [ipynb](src/learning_quadratic_function_by_nn.ipynb)
 - fitting two points by nn - [ipynb](src/fitting-two-pts-by-nn.ipynb)
