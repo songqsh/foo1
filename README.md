@@ -20,5 +20,6 @@
 - gpu vs cpu performance on MDP - [ipynb](src/gpu2cpu.ipynb)
 - Pytorch: Autograd for higher order - [ipynb](src/autograd01.ipynb)
 - First order ODE by fixed point theorem - [ipynb](src/ode01.ipynb)
+- Second order ODE by FPT - [ipynb](src/ode02.ipynb)
 
 
