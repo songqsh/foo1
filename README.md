@@ -6,6 +6,7 @@
 - p: linear regression with pytorch - [ipynb](src/linreg_torch_v01.ipynb)
 - learning quadratic function by nn - [ipynb](src/Copy_of_Copy_of_learning_quadratic_function_by_nn.ipynb)
 - learning by nn with normalization - [ipynb](src/learning_quadratic_function_by_nn_normalize.ipynb)
+- learn bsm - [ipynb](src/nn_learn_bsm_formula.ipynb)
 - fitting two points by nn - [ipynb](src/fitting-two-pts-by-nn.ipynb)
 - fitting three points by nn - [ipynb](src/fit-3-pts-by-nn.ipynb)
 - gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
