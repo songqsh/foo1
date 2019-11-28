@@ -4,7 +4,7 @@
 - linear regression: linear algebra approach and machine learning approach - [ipynb](src/linreg.ipynb)
 - minimize a smooth function by pytorch optimizer - [ipynb](src/min_fun.ipynb)
 - p: linear regression with pytorch - [ipynb](src/linreg_torch_v01.ipynb)
-- learning quadratic function by nn - [ipynb](src/learning_quadratic_function_by_nn.ipynb)
+- learning quadratic function by nn - [ipynb](src/Copy_of_Copy_of_learning_quadratic_function_by_nn.ipynb)
 - fitting two points by nn - [ipynb](src/fitting-two-pts-by-nn.ipynb)
 - fitting three points by nn - [ipynb](src/fit-3-pts-by-nn.ipynb)
 - gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
