@@ -9,6 +9,7 @@
 - learn bsm - [ipynb](src/nn_learn_bsm_formula.ipynb)
 - fitting two points by nn - [ipynb](src/fitting-two-pts-by-nn.ipynb)
 - fitting three points by nn - [ipynb](src/fit-3-pts-by-nn.ipynb)
+- SB18-Example 4.1 -[ipynb](src/sb18-exm-4-1.ipynb)
 - gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
 - 1d MDP with q-table - [ipynb](src/mdp_1d_qtable.ipynb)
 - cliff walking: Sarsa/Q-learning - [ipynb](src/cliff_v01.ipynb)
