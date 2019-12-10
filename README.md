@@ -11,6 +11,7 @@
 - fitting three points by nn - [ipynb](src/fit-3-pts-by-nn.ipynb)
 - SB18-Example 4.1-Gridworld -[ipynb](src/sb18-exm-4-1.ipynb)
 - gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
+- MDP from HJB - [ipynb](doc/191206HJB.pdf)
 - 1d MDP with q-table - [ipynb](src/mdp_1d_qtable.ipynb)
 - cliff walking: Sarsa/Q-learning - [ipynb](src/cliff_v01.ipynb)
 - Backward in time dynamic programing on HJB with Cauchy data - [ipynb](src/dp_hjb_cauchy.ipynb)
