@@ -8,14 +8,107 @@
 \usepackage{epstopdf}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
-\title{Brief Article}
-\author{The Author}
+\title{MDP from the discretization of HJB}
+%\author{The Author}
 %\date{}                                           % Activate to display a given date or no date
 
 \begin{document}
 \maketitle
 %\section{}
 %\subsection{}
+
+\section{Problem setup}
+\subsection{HJB}
+We want to solve a d-dimensions HJB given below:
+\begin{itemize}
+ \item Domain 
+ $$O = \{x\in \mathbb R^{d}: \|x\|_{2} < 1\}.$$
+ \item Equation on $O$: 
+ $$(\frac 1 2 \Delta -  \lambda) v(x) + \inf_a \Big\{
+ \sum_{i=1}^db_i(x,a)  \frac{\partial v(x)}{\partial x_i}  
+  + \ell(x,a)
+ \Big\} = 0.$$
+ \item Dirichlet data on $\partial O$:
+ $$v(x) = g(x).$$
+\end{itemize}
+
+\subsection{An example} Consider
+$$
+ \frac 1 2 \Delta v + \inf_{a\in \mathbb R^{d}}
+ \Big(a \cdot \nabla v +d + 2|x|^2 + \frac 1 2 |a| ^2 \Big) = 0, \ x\in O.
+$$
+with
+$$
+v(x) = -|x|^2, \ x\in \partial O.
+$$
+The exact solution is 
+$$
+v(x) =  -|x|^2.
+$$
+
+\section{Discretization}
+
+\subsection{FDM}
+We introduce some notions of finite difference operators.
+Commonly used first order finite difference operators 
+are FFD, BFD, and CFD. 
+Forward Finite Difference (FFD) is
+$$\frac{\partial}{\partial x_{i}}v(x) \approx \delta_{he_{i}} v(x) 
+:= \frac{v(x+he_{i}) - v(x)}{h}.$$
+Backward Finite Difference (BFD) is
+$$\frac{\partial}{\partial x_{i}}v(x) \approx \delta_{-he_{i}} v(x) 
+:= \frac{v(x-he_{i}) - v(x)}{-h}.$$
+Central Finite Difference (CFD) is
+$$\frac{\partial}{\partial x_{i}}v(x) \approx 
+\delta_{\pm h e_{i}} v(x)
+:= \frac 1 2 (\delta_{-he_{i}} + \delta_{he_{i}}) v(x)
+= \frac{v(x+he_{i}) - v(x-he_{i})}{2h}.$$
+Second order finite difference operators are the followings:
+$$
+\frac{\partial^{2}}{\partial x_{i}^{2}} v(x)
+\approx
+\delta_{-he_{i}} \delta_{he_{i}} v(x)
+= \frac{v(x+he_{i}) - 2 v(x) + v(x- he_{i})}{h^{2}}.
+$$
+Although the operator below will not be used, we will write it for its completeness, if $i \neq j$, 
+$$
+\begin{array}
+ {ll}
+\frac{\partial^{2}}{\partial x_{i} \partial x_{j}} v(x) &\approx
+\delta_{\pm he_{i}} \delta_{\pm he_{j}} v(x)
+\\ 
+& \displaystyle
+= \frac{v(x+he_{i}+he_{j}) - v(x+he_{i}-he_{j})
+- v(x-he_{i}+he_{j})+ v(x-he_{i}-he_{j})}{4h^{2}}. 
+\end{array}
+$$
+
+
+\subsection{CFD on HJB}
+Approximations for HJB are 
+$$
+\frac{\partial v(x)}{\partial x_i} \leftarrow 
+\delta_{\pm h e_{i}} v(x)
+$$
+and
+$$
+\frac{\partial^2 v(x)}{\partial x_i^2} \leftarrow
+\delta_{-he_{i}} \delta_{he_{i}} v(x).$$
+For simplicity, if we set 
+$$
+\gamma = \frac{d}{d+ h^{2} \lambda}, \
+p^{h}(x \pm he_{i}|x, a) = \frac 1 {2d} (1\pm h b_{i}(x, a)), \
+\ell^{h}(x, a) = \frac{h^{2} \ell(x, a)}{d},
+$$
+then it yields DPP
+$$
+v (x) = \gamma \inf_{a} 
+\Big\{ \ell^{h}(x, a) + 
+\sum_{i=1}^{d} 
+p^{h}(x+he_{i}|x) v(x+he_{i})
++ p^{h}(x-he_{i}|x) v(x-he_{i})
+\Big\}.
+$$
 
 
 
