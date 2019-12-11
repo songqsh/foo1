@@ -22,7 +22,7 @@
 We want to solve a d-dimensions HJB given below:
 \begin{itemize}
  \item Domain 
- $$O = \{x\in \mathbb R^{d}: \|x\|_{2} < 1\}.$$
+ $$O = \{x\in \mathbb R^{d}: \|x\|_{1} < 1\}.$$
  \item Equation on $O$: 
  $$(\frac 1 2 \Delta -  \lambda) v(x) + \inf_a \Big\{
  \sum_{i=1}^db_i(x,a)  \frac{\partial v(x)}{\partial x_i}  
@@ -43,9 +43,10 @@ v(x) = -|x|^2, \ x\in \partial O.
 $$
 The exact solution is 
 $$
-v(x) =  -|x|^2.
+v(x) =  -|x|^2, \ \hbox{ with } a= 2x.
 $$
-
+This means that the solution is invariant if $\inf_{a\in \mathbb R^{d}}$ is
+replaced by $\inf_{a\in 3 O}$.
 \section{Discretization}
 
 \subsection{FDM}

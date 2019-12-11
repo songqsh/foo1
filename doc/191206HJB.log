@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.11.4)  9 DEC 2019 23:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.11.4)  10 DEC 2019 21:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -287,17 +287,16 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \MPnumerator=\count107
 \makeMPintoPDFobject=\count108
 \everyMPtoPDFconversion=\toks28
-)
-Overfull \hbox (7.97997pt too wide) detected at line 84
+) [1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (7.97997pt too wide) detected at line 85
 []
  []
 
-[1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 [2] (./191206HJB.aux) ) 
 Here is how much of TeX's memory you used:
  3322 strings out of 493089
  43581 string characters out of 6134842
- 113597 words of memory out of 5000000
+ 112597 words of memory out of 5000000
  6609 multiletter control sequences out of 15000+600000
  11087 words of font info for 43 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
@@ -315,7 +314,7 @@ mr8.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
 10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8
 .pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/symbols/ms
 bm10.pfb>
-Output written on 191206HJB.pdf (2 pages, 120868 bytes).
+Output written on 191206HJB.pdf (2 pages, 121364 bytes).
 PDF statistics:
  59 PDF objects out of 1000 (max. 8388607)
  42 compressed objects within 1 object stream
