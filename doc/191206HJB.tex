@@ -32,7 +32,39 @@ We want to solve a d-dimensions HJB given below:
  $$v(x) = g(x).$$
 \end{itemize}
 
-\subsection{An example} Consider
+\subsection{Examples} 
+\subsubsection{1-d HJB: Whittle’s “Flypaper”}
+This example is taken from the reference
+%\begin{itemize} \item 
+{\it P97, Example 4 of [Roger and Williams 2000] }
+%\end{itemize}
+We want to solve HJB
+$$\inf_a \{b(x,a) v'(x) + \frac 1 2 \sigma^2 v''(x) - \lambda v(x) + \ell(x,a)\} = 0, \quad \hbox{ on } O = (l, u)$$
+with Dirichlet data
+$$v(x) = g(x), \quad x= l, u.$$
+Let parameters be given by
+$$O = (0, z), \ 
+\sigma = 1, \ 
+b(x,a) = a, \ 
+\lambda = 0, \ 
+\ell(x,a) = \frac 1 2 (a^2+1),\ 
+g(x) = - \ln (c_1 e^x + c_2 e^{-x}).$$
+The value function and the optimal policy are 
+$$v(x) = g(x), \ a^*(x) = - g'(x).
+$$
+
+{\bf Ex.}
+In the above Whittle's "flypaper", answer the following questions:
+\begin{itemize}
+ \item show that $v$ is concave.
+ \item  show that the optimal policy $|a^*(x)|\le 1$.
+ \item solve for the exact solution for terminal cost given by
+$$g(x) = x^2.$$
+
+\end{itemize}
+
+\subsubsection{Multidimensional HJB with quadratic function as its solution}
+Consider
 $$
  \frac 1 2 \Delta v + \inf_{a\in \mathbb R^{d}}
  \Big(a \cdot \nabla v +d + 2|x|^2 + \frac 1 2 |a| ^2 \Big) = 0, \ x\in O.
@@ -71,7 +103,7 @@ $$
 \delta_{-he_{i}} \delta_{he_{i}} v(x)
 = \frac{v(x+he_{i}) - 2 v(x) + v(x- he_{i})}{h^{2}}.
 $$
-Although the operator below will not be used, we will write it for its completeness, if $i \neq j$, 
+Although the next operator will not be used below, we will write it for its completeness. If $i \neq j$, we use
 $$
 \begin{array}
  {ll}
