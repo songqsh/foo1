@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 10 10:50:24 2019
+Created on Fri Dec 13 16:10:06 2019
 
 @author: songqsh
+pytorch version
 
-Goal: implement MDP discretized from n-d HJB with Dirichlet data
 """
 
-import numpy as np
+import torch
 import time
+
 
 
 class Mdp:
@@ -25,23 +26,24 @@ class Mdp:
         self.h = 2.0 / mesh_n
         self.rate = dim / (dim + self.h ** 2 * lam)
         self.value = 0
-        v_shape = (np.ones(self.dim) * (self.mesh_n + 1)).astype(int)
-        self.value = np.zeros(shape=v_shape)  # initial
+        v_shape = (torch.ones(self.dim) * (self.mesh_n + 1)).type(torch.int32)
+        self.value = torch.zeros(v_shape, dtype=torch.float64)  # initial
         self.a_scale = 2
-        a_shape = (np.ones(self.dim) * (self.mesh_n * self.a_scale + 1)).astype(int)
-        self.action = np.zeros(shape=a_shape)  # actions
+        a_shape = (torch.ones(self.dim) * (self.mesh_n * self.a_scale + 1)).type(torch.int32)
+        self.action = torch.zeros(a_shape, dtype=torch.float64)  # actions
 
         if verbose:
             print(str(dim) + '-d MDP from HJB')
 
+
     # convert index to state
     def i2s(self, tup):
-        return (np.array(tup) * self.h - 1.0).reshape(self.dim, 1)
+        return (torch.array(tup) * self.h - 1.0).reshape(self.dim, 1)
 
         # convert index to action
 
     def i2a(self, tup):
-        return (np.array(tup) * self.h - self.a_scale).reshape(self.dim, 1)
+        return (torch.array(tup) * self.h - self.a_scale).reshape(self.dim, 1)
 
     # define absorbing states
     # input: d-array for a state
@@ -50,7 +52,7 @@ class Mdp:
         if state.shape != (self.dim, 1):
             print('warning: state dimension is not right')
             return False
-        elif np.max(np.abs(state)) < 1:
+        elif torch.max(torch.abs(state)) < 1:
             return False
         else:
             return True
@@ -61,11 +63,11 @@ class Mdp:
     def value_init(self):
         # boundary value
         v0 = self.value
-        it0 = np.nditer(v0, flags=['multi_index'])
+        it0 = torch.nditer(v0, flags=['multi_index'])
         while not it0.finished:
             s = self.i2s(it0.multi_index)
             if self.is_absorbing(s):
-                v0[it0.multi_index] = -np.sum(s ** 2)
+                v0[it0.multi_index] = -torch.sum(s ** 2)
             it0.iternext()
 
     # define one step move
@@ -82,7 +84,7 @@ class Mdp:
         a0 = self.i2a(a_ind)
 
         def ell(x,a):
-            return self.dim + 2 * np.sum(x ** 2) + np.sum(a ** 2) * 0.5
+            return self.dim + 2 * torch.sum(x ** 2) + torch.sum(a ** 2) * 0.5
         reward = self.h ** 2 * ell(s0, a0) / self.dim
 
         s1_ind = []
@@ -93,21 +95,23 @@ class Mdp:
             pr.append(1.0)
         else:
             for i in range(self.dim):
-                s1_ind_ = np.array(s_ind)
+                s1_ind_ = torch.array(s_ind)
                 s1_ind_[i] += 1
                 s1_ind_.astype(int)
                 s1_ind_ = tuple(s1_ind_.tolist())
                 s1_ind.append(s1_ind_)
             for i in range(self.dim):
-                s1_ind_ = np.array(s_ind)
+                s1_ind_ = torch.array(s_ind)
                 s1_ind_[i] -= 1
                 s1_ind_.astype(int)
                 s1_ind_ = tuple(s1_ind_.tolist())
                 s1_ind.append(s1_ind_)
-            pr = np.append(1 + self.h * a0, 1 - self.h * a0)/(2*self.dim)
+            pr = torch.append(1 + self.h * a0, 1 - self.h * a0)/(2*self.dim)
             pr = pr.tolist()
 
         return s1_ind, pr, reward
+    
+    
 
     # value iteration
     def value_iter(self):
@@ -117,13 +121,13 @@ class Mdp:
 
         iter_n = 1
         while True:
-            it = np.nditer(v0, flags=['multi_index'])
+            it = torch.nditer(v0, flags=['multi_index'])
             while not it.finished:
                 s0_i = it.multi_index
                 s0 = self.i2s(s0_i)
                 if not self.is_absorbing(s0):
                     q1 = []
-                    it_a = np.nditer(self.action, flags=['multi_index'])
+                    it_a = torch.nditer(self.action, flags=['multi_index'])
                     while not it_a.finished:
                         a0_i = it_a.multi_index
                         s1_i, pr, rwd = self.step(s0_i, a0_i)
@@ -135,7 +139,7 @@ class Mdp:
                     v1[it.multi_index] = self.rate * min(q1)
                 it.iternext()
 
-            if np.sum((v0 - v1) ** 2) < 1e-3:
+            if torch.sum((v0 - v1) ** 2) < 1e-3:
                 v0 = v1.copy()
                 break
             v0 = v1.copy()
@@ -155,11 +159,11 @@ if __name__ == "__main__":
     #print(v)
 
     err = 0.
-    itv = np.nditer(v, flags=['multi_index'])
+    itv = torch.nditer(v, flags=['multi_index'])
     while not itv.finished:
         s = m.i2s(itv.multi_index)
         y = v[itv.multi_index]
-        err1 = np.abs(y + np.sum(s**2))
+        err1 = torch.abs(y + torch.sum(s**2))
         if err1>err:
             err = err1
         itv.iternext()
