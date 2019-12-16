@@ -10,7 +10,7 @@ Goal: implement MDP discretized from n-d HJB with Dirichlet data
 
 import numpy as np
 import time
-#import pdb
+import ipdb
 
 #alternative for nditer, but for both tensor and ndarray
 def deep_iter(data, ix=tuple()):
@@ -45,19 +45,19 @@ class Mdp:
             print(str(dim) + '-d MDP from HJB')
 
     # convert index to state
-    def i2s(self, tup):
-        return (np.array(tup) * self.h - 1.0).reshape(self.dim, 1)
+    def i2s(self, *tup):
+        return np.array([x * self.h - 1.0 for x in tup])#.reshape(self.dim, 1)
 
         # convert index to action
 
-    def i2a(self, tup):
-        return (np.array(tup) * self.h - self.a_scale).reshape(self.dim, 1)
+    def i2a(self, *tup):
+        return np.array([x * self.h - self.a_scale for x in tup])#.reshape(self.dim, 1)
 
     # define absorbing states
     # input: d-array for a state
     # return: true/false
     def is_absorbing(self, state):
-        if state.shape != (self.dim, 1):
+        if len(state) != self.dim:
             print('warning: state dimension is not right')
             return False
         elif np.max(np.abs(state)) < 1:
@@ -72,9 +72,9 @@ class Mdp:
         # boundary value
         v0 = self.value
         for ix, elem in deep_iter(v0):
-            s = self.i2s(ix)
+            s = self.i2s(*ix)
             if self.is_absorbing(s):
-                v0[ix] = -np.sum(s**2)
+                v0[ix] = -np.sum(np.power(s, 2))
                 
 
     # define one step move
@@ -87,11 +87,11 @@ class Mdp:
     #   float for instant reward
 
     def step(self, s_ind, a_ind):
-        s0 = self.i2s(s_ind)
-        a0 = self.i2a(a_ind)
+        s0 = self.i2s(*s_ind)
+        a0 = self.i2a(*a_ind)
 
         def ell(x,a):
-            return self.dim + 2 * np.sum(x ** 2) + np.sum(a ** 2) * 0.5
+            return self.dim + 2 * np.sum(np.power(x,2)) + np.sum(np.power(a,2)) * 0.5
         reward = self.h ** 2 * ell(s0, a0) / self.dim
 
         s1_ind = []
@@ -127,7 +127,7 @@ class Mdp:
         iter_n = 1
         while True:
             for ix_s0, val in deep_iter(v0):
-                s0 = self.i2s(ix_s0)
+                s0 = self.i2s(*ix_s0)
                 if not self.is_absorbing(s0):
                     q1 = []
                     for ix_a, elem in deep_iter(self.action):
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     err = 0.
     for ix, val in deep_iter(v):
         #ipdb.set_trace()
-        s = m.i2s(ix)
+        s = m.i2s(*ix)
         err1 = np.abs(val + np.sum(s**2))
         if err1>err:
             err = err1
