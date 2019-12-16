@@ -10,6 +10,15 @@ pytorch version
 
 import torch
 import time
+#import ipdb
+
+#alternative for nditer, but for both tensor and ndarray
+def deep_iter(data, ix=tuple()):
+    try:
+        for i, element in enumerate(data):
+            yield from deep_iter(element, ix + (i,))
+    except:
+        yield ix, data
 
 
 
@@ -38,12 +47,12 @@ class Mdp:
 
     # convert index to state
     def i2s(self, tup):
-        return (torch.array(tup) * self.h - 1.0).reshape(self.dim, 1)
+        return (torch.tensor(tup, dtype=torch.float32) * self.h - 1.0).reshape(self.dim, 1)
 
         # convert index to action
 
     def i2a(self, tup):
-        return (torch.array(tup) * self.h - self.a_scale).reshape(self.dim, 1)
+        return (torch.tensor(tup, dtype=torch.float32) * self.h - self.a_scale).reshape(self.dim, 1)
 
     # define absorbing states
     # input: d-array for a state
@@ -61,15 +70,12 @@ class Mdp:
     # return
     #   state-value with boundary value
     def value_init(self):
-        # boundary value
         v0 = self.value
-        it0 = torch.nditer(v0, flags=['multi_index'])
-        while not it0.finished:
-            s = self.i2s(it0.multi_index)
+        for ix, elem in deep_iter(v0):
+            s = self.i2s(ix)
             if self.is_absorbing(s):
-                v0[it0.multi_index] = -torch.sum(s ** 2)
-            it0.iternext()
-
+                v0[ix] = -torch.sum(s**2)
+    
     # define one step move
     # input:
     #   d-tuple for state
@@ -88,64 +94,59 @@ class Mdp:
         reward = self.h ** 2 * ell(s0, a0) / self.dim
 
         s1_ind = []
-        pr = []
 
         if self.is_absorbing(s0):
             s1_ind.append(s_ind)
             pr.append(1.0)
         else:
             for i in range(self.dim):
-                s1_ind_ = torch.array(s_ind)
+                s1_ind_ = torch.tensor(s_ind, dtype=torch.int32)
                 s1_ind_[i] += 1
-                s1_ind_.astype(int)
+                #s1_ind_.astype(int)
                 s1_ind_ = tuple(s1_ind_.tolist())
                 s1_ind.append(s1_ind_)
             for i in range(self.dim):
-                s1_ind_ = torch.array(s_ind)
+                s1_ind_ = torch.tensor(s_ind, dtype=torch.int32)
                 s1_ind_[i] -= 1
-                s1_ind_.astype(int)
+                #s1_ind_.astype(int)
                 s1_ind_ = tuple(s1_ind_.tolist())
                 s1_ind.append(s1_ind_)
-            pr = torch.append(1 + self.h * a0, 1 - self.h * a0)/(2*self.dim)
+            pr = torch.tensor([1 + self.h * a0, 1 - self.h * a0], dtype=torch.float32)/(2*self.dim)
             pr = pr.tolist()
 
         return s1_ind, pr, reward
     
-    
-
     # value iteration
     def value_iter(self):
         self.value_init()
         v0 = self.value
-        v1 = v0.copy()
+        v1 = v0.clone()
 
         iter_n = 1
         while True:
-            it = torch.nditer(v0, flags=['multi_index'])
-            while not it.finished:
-                s0_i = it.multi_index
-                s0 = self.i2s(s0_i)
+            for ix_s0, val in deep_iter(v0):
+                s0 = self.i2s(ix_s0)
                 if not self.is_absorbing(s0):
                     q1 = []
-                    it_a = torch.nditer(self.action, flags=['multi_index'])
-                    while not it_a.finished:
-                        a0_i = it_a.multi_index
-                        s1_i, pr, rwd = self.step(s0_i, a0_i)
-                        rhs = rwd
-                        for k in range(2 * self.dim):
-                            rhs += v0[s1_i[k]] * pr[k]
-                        q1.append(rhs)
-                        it_a.iternext()
-                    v1[it.multi_index] = self.rate * min(q1)
-                it.iternext()
+                    for ix_a, elem in deep_iter(self.action):
+                        ix_s1, pr, rwd = self.step(ix_s0, ix_a)
+                        rhs = rwd.item()
+                        for k in range(2*self.dim):
+                            #ipdb.set_trace()
+                            rhs += v0[ix_s1[k]].item()*pr[k]
+                        q1 += [rhs,]
+                    v1[ix_s0] = self.rate*min(q1)
+                    
 
             if torch.sum((v0 - v1) ** 2) < 1e-3:
-                v0 = v1.copy()
+                v0 = v1.clone()
                 break
-            v0 = v1.copy()
+            v0 = v1.clone()
             iter_n += 1
         self.value = v0
-        return iter_n
+        return iter_n    
+    
+    
 
 
 if __name__ == "__main__":
@@ -156,15 +157,13 @@ if __name__ == "__main__":
     print('>>>time elapsed is: ' + str(end_time - start_time))
 
     v = m.value
-    #print(v)
+    print(v)
 
     err = 0.
-    itv = torch.nditer(v, flags=['multi_index'])
-    while not itv.finished:
-        s = m.i2s(itv.multi_index)
-        y = v[itv.multi_index]
-        err1 = torch.abs(y + torch.sum(s**2))
+    for ix, val in deep_iter(v):
+        #ipdb.set_trace()
+        s = m.i2s(ix)
+        err1 = torch.abs(val + torch.sum(s**2))
         if err1>err:
             err = err1
-        itv.iternext()
     print('>>>sup norm is: ' + str(err))
