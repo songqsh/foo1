@@ -65,8 +65,7 @@ class Pde:
         
         # convert index(tuple) to state
         def i2s(*ix): 
-            return np.array([x * h_s - self.radius_s for x in ix])
-        
+            return np.array([x * h_s - self.radius_s for x in ix])       
         out['i2s'] = i2s
         
         def i2a(*ix):
