@@ -112,8 +112,8 @@ class Pde:
             pr=[]
             if method == 'cfd':
                 b = self.drift(i2s(*ix_s), i2a(*ix_a))
-                pr_up = ((1+h_s*b)/self.dim).tolist()
-                pr_dn = ((1-h_s*b)/self.dim).tolist()
+                pr_up = ((1+h_s*b)/self.dim/2.0).tolist()
+                pr_dn = ((1-h_s*b)/self.dim/2.0).tolist()
                 pr = pr_up+pr_dn
             
             return ix_next_s, pr
@@ -138,14 +138,14 @@ def value_iter(v_shape, a_shape, is_interior,
 
     #iter_n = 1
     #while True:
-    for iter_n in range(1):
+    for iter_n in range(50):
         #ipdb.set_trace()
         for ix_s0, val in deep_iter(v0):
             if is_interior(*ix_s0):
                 q1 = []
                 for ix_a, elem in deep_iter(a):
                     rhs = run_cost(ix_s0, ix_a)
-                    ix_s1, pr = step(ix_s0, ix_a)
+                    ix_s1, pr = step(ix_s0, ix_a); #print(ix_s1, pr)
                     for k in range(2*dim):
                         rhs += v0[ix_s1[k]]*pr[k]
                     q1 += [rhs,]
@@ -163,6 +163,7 @@ def value_iter(v_shape, a_shape, is_interior,
 if __name__=="__main__":
     p = Pde(); m = p.mdp()
     n, v = value_iter(**m)
+    print(v)
 
     
 
