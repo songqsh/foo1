@@ -14,7 +14,7 @@ see probelm here:
 
 
 import numpy as np
-import time
+#import time
 #import pdb
 
 #alternative for nditer, but for both tensor and ndarray
@@ -35,8 +35,8 @@ class Pde:
             drift = lambda s,a: a,
             run_cost = lambda s,a: len(s) + np.sum(s**2)*2.+ np.sum(a**2)/2.0,
             term_cost = lambda s, a: -np.sum(s**2),
-            radius_s = 1.0, #l-infinity radius for state
-            radius_a = 2.0, #l-infinity radius for action
+            limit_s = 1.0, #l-infinity limit for state
+            limit_a = 2.0, #l-infinity limit for action
             verbose=True
     ):
         self.dim = dim
@@ -44,8 +44,8 @@ class Pde:
         self.drift = drift
         self.run_cost = run_cost
         self.term_cost = term_cost            
-        self.radius_s = radius_s
-        self.radius_a = radius_a
+        self.limit_s = limit_s
+        self.limit_a = limit_a
 
         if verbose:
             print(str(dim) + '-dim HJB')
@@ -58,19 +58,21 @@ class Pde:
     def mdp(self, n_mesh_s = 8, method='cfd'):
         out = {}
         out['n_mesh_s'] = n_mesh_s
-        h_s = 2*self.radius_s/n_mesh_s #mesh size in state
+        h_s = 2*self.limit_s/n_mesh_s #mesh size in state
 
-        out['n_mesh_a'] = int(n_mesh_s*self.radius_a/self.radius_s)
-        h_a = 2*self.radius_a/out['n_mesh_a']
+        out['n_mesh_a'] = int(n_mesh_s*self.limit_a/self.limit_s)
+        h_a = 2*self.limit_a/out['n_mesh_a']
+
         
         # convert index(tuple) to state
         def i2s(*ix): 
-            return np.array([x * h_s - self.radius_s for x in ix])       
+            return np.array([x * h_s - self.limit_s for x in ix])       
         out['i2s'] = i2s
         
         def i2a(*ix):
-            return np.array([x * h_a - self.radius_a  for x in ix])
+            return np.array([x * h_a - self.limit_a  for x in ix])
         out['i2a'] = i2a
+        
         
         return out
     
