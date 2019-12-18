@@ -26,7 +26,7 @@ class Mdp:
     def __init__(
             self,
             dim=1,
-            mesh_n=10,  # better to be even number
+            mesh_n=8,  # better to be even number
             lam=0.0,
             verbose=True
     ):
@@ -125,7 +125,7 @@ class Mdp:
         v1 = v0.copy()
 
         iter_n = 1
-        while True:
+        while iter_n<2:
             for ix_s0, val in deep_iter(v0):
                 s0 = self.i2s(*ix_s0)
                 if not self.is_absorbing(s0):
@@ -136,14 +136,14 @@ class Mdp:
                         for k in range(2*self.dim):
                             #ipdb.set_trace()
                             rhs += v0[ix_s1[k]]*pr[k]
-                        q1 += [rhs,]
-                    v1[ix_s0] = self.rate*min(q1)
+                        q1 += [rhs,]; 
+                    v1[ix_s0] = self.rate*min(q1); print(min(q1))
                     
 
             if np.max(np.abs(v0 - v1)) < 1e-3:
                 v0 = v1.copy()
                 break
-            v0 = v1.copy()
+            v0 = v1.copy(); #print(v0)
             iter_n += 1
         self.value = v0
         return iter_n 
@@ -151,12 +151,13 @@ class Mdp:
 
 if __name__ == "__main__":
     start_time = time.time()
-    m = Mdp(mesh_n=12, dim=1)
+    m = Mdp(mesh_n=8, dim=1)
     print('>>>number of iterations is: ' + str(m.value_iter()))
     end_time = time.time()
     print('>>>time elapsed is: ' + str(end_time - start_time))
 
     v = m.value
+    '''
     print(v)
 
     err = 0.
@@ -167,3 +168,5 @@ if __name__ == "__main__":
         if err1>err:
             err = err1
     print('>>>sup-norm of the error is: ' + str(err))
+    
+    '''

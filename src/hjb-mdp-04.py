@@ -138,8 +138,8 @@ def value_iter(v_shape, a_shape, is_interior,
 
     #iter_n = 1
     #while True:
-    for iter_n in range(15):
-        ipdb.set_trace()
+    for iter_n in range(1):
+        #ipdb.set_trace()
         for ix_s0, val in deep_iter(v0):
             if is_interior(*ix_s0):
                 q1 = []
@@ -149,27 +149,21 @@ def value_iter(v_shape, a_shape, is_interior,
                     for k in range(2*dim):
                         rhs += v0[ix_s1[k]]*pr[k]
                     q1 += [rhs,]
-                v1[ix_s0] = rate*min(q1)
+                v1[ix_s0] = rate*min(q1); #print(min(q1))
                 
 
         if np.max(np.abs(v0 - v1)) < 1e-3:
             v0 = v1.copy()
             break
-        print(v0)
-        v0 = v1.copy()
-        
-        if np.mod(iter_n,100)==0:
-            print('iteration is '+str(iter_n)+
-                  ' err'+str(np.max(np.abs(v0 - v1))))
-        
+        v0 = v1.copy(); #print(v0)        
+               
         #iter_n += 1
     return iter_n, v0
-        
 
-p = Pde()
-m = p.mdp()
-n, v = value_iter(**m)
-    
+if __name__=="__main__":
+    p = Pde(); m = p.mdp()
+    n, v = value_iter(**m)
+
     
 
 
