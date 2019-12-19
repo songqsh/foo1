@@ -124,7 +124,6 @@ def value_iter(v_shape, a_shape, i2s, is_interior,
                run_cost, term_cost, rate, step):
     dim = len(v_shape)
     v0 = np.zeros(v_shape)
-    a = np.zeros(a_shape)
     
     # boundary value
     for ix_s in deep_iter(*v_shape):
