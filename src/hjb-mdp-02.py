@@ -125,7 +125,7 @@ class Mdp:
         v1 = v0.copy()
 
         iter_n = 1
-        while iter_n<2:
+        while iter_n<100:
             for ix_s0, val in deep_iter(v0):
                 s0 = self.i2s(*ix_s0)
                 if not self.is_absorbing(s0):

@@ -77,7 +77,7 @@ class Pde:
        # convert index(tuple) to state
         def i2s(*ix): 
             return np.array([x * h_s for x in ix])       
-        #out['i2s'] = i2s
+        out['i2s'] = i2s
         #convert index to action
         def i2a(*ix):
             return np.array([x * h_a for x in ix])
@@ -123,7 +123,7 @@ class Pde:
     
 
 
-def value_iter(v_shape, a_shape, is_interior, 
+def value_iter(v_shape, a_shape, i2s, is_interior, 
                run_cost, term_cost, rate, step):
     dim = len(v_shape)
     v0 = np.zeros(v_shape)
@@ -163,9 +163,15 @@ def value_iter(v_shape, a_shape, is_interior,
 if __name__=="__main__":
     p = Pde(); m = p.mdp()
     n, v = value_iter(**m)
-    print(v)
 
-    
+    def true_soln(s):
+        return -np.sum(s**2)
+    err = []
+    for ix_s, val in deep_iter(v):
+        err0 = np.abs(val - true_soln(m['i2s'](*ix_s)))
+        err += [err0, ]
+    print(max(err))
+    print(n, v)
 
 
 
