@@ -1,0 +1,144 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Discretization of Elliptic Linear PDE and Neural Network}
+%\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+
+\section{Problem setup}
+\subsection{HJB}
+We want to solve a d-dimensions HJB given below:
+\begin{itemize}
+ \item Domain 
+ $$O = \{x\in \mathbb R^{d}: 0<x_{i}< 1, i =1,2, \ldots d\}.$$
+ \item Equation on $O$: 
+ $$(\frac 1 2 \Delta -  \lambda) v(x) + 
+ \sum_{i=1}^db_i(x)  \frac{\partial v(x)}{\partial x_i}  
+  + \ell(x) = 0.$$
+ \item Dirichlet data on $\partial O$:
+ $$v(x) = g(x).$$
+\end{itemize}
+
+\subsection{Examples} 
+
+\subsubsection{Multidimensional PDE with quadratic function as its solution}
+Consider
+$$
+ \frac 1 2 \Delta v - d = 0, \ x\in O.
+$$
+with
+$$
+v(x) = \sum_{i=1}^{d} (x_{i} - 1/2)^{2}, \ x\in \partial O.
+$$
+The exact solution is 
+$$
+v(x) = \sum_{i=1}^{d} (x_{i} - 1/2)^{2}.
+$$
+
+\section{Discretization}
+
+\subsection{FDM}
+We introduce some notions of finite difference operators.
+Commonly used first order finite difference operators 
+are FFD, BFD, and CFD. 
+Forward Finite Difference (FFD) is
+$$\frac{\partial}{\partial x_{i}}v(x) \approx \delta_{he_{i}} v(x) 
+:= \frac{v(x+he_{i}) - v(x)}{h}.$$
+Backward Finite Difference (BFD) is
+$$\frac{\partial}{\partial x_{i}}v(x) \approx \delta_{-he_{i}} v(x) 
+:= \frac{v(x-he_{i}) - v(x)}{-h}.$$
+Central Finite Difference (CFD) is
+$$\frac{\partial}{\partial x_{i}}v(x) \approx 
+\delta_{\pm h e_{i}} v(x)
+:= \frac 1 2 (\delta_{-he_{i}} + \delta_{he_{i}}) v(x)
+= \frac{v(x+he_{i}) - v(x-he_{i})}{2h}.$$
+Second order finite difference operators are the followings:
+$$
+\frac{\partial^{2}}{\partial x_{i}^{2}} v(x)
+\approx
+\delta_{-he_{i}} \delta_{he_{i}} v(x)
+= \frac{v(x+he_{i}) - 2 v(x) + v(x- he_{i})}{h^{2}}.
+$$
+Although the next operator will not be used below, we will write it for its completeness. If $i \neq j$, we use
+$$
+\begin{array}
+ {ll}
+\frac{\partial^{2}}{\partial x_{i} \partial x_{j}} v(x) &\approx
+\delta_{\pm he_{i}} \delta_{\pm he_{j}} v(x)
+\\ 
+& \displaystyle
+= \frac{v(x+he_{i}+he_{j}) - v(x+he_{i}-he_{j})
+- v(x-he_{i}+he_{j})+ v(x-he_{i}-he_{j})}{4h^{2}}. 
+\end{array}
+$$
+
+
+\subsection{CFD on PDE}
+Approximations for PDE are 
+$$
+\frac{\partial v(x)}{\partial x_i} \leftarrow 
+\delta_{\pm h e_{i}} v(x)
+$$
+and
+$$
+\frac{\partial^2 v(x)}{\partial x_i^2} \leftarrow
+\delta_{-he_{i}} \delta_{he_{i}} v(x).$$
+For simplicity, if we set 
+$$
+\gamma = \frac{d}{d+ h^{2} \lambda}, \
+p^{h}(x \pm he_{i}|x) = \frac 1 {2d} (1\pm h b_{i}(x)), \
+\ell^{h}(x) = \frac{h^{2} \ell(x)}{d},
+$$
+then it yields DPP
+$$
+v (x) = \gamma 
+\Big\{ \ell^{h}(x) + 
+\sum_{i=1}^{d} 
+p^{h}(x+he_{i}|x) v(x+he_{i})
++ p^{h}(x-he_{i}|x) v(x-he_{i})
+\Big\}.
+$$
+
+\subsection{UFD on PDE}
+Upwind finite difference(UFD) is the following:
+$$
+\frac{\partial v(x)}{\partial x_i} \leftarrow 
+\delta_{ h e_{i}} v(x) \cdot I(b_{i}(x)\ge 0) +
+\delta_{-he_{i}} v(x) \cdot I(b_{i}(x) <0)
+$$
+and
+$$
+\frac{\partial^2 v(x)}{\partial x_i^2} \leftarrow
+\delta_{-he_{i}} \delta_{he_{i}} v(x).$$
+Then, with
+$$
+c_{\pm} = \frac d 2 + h \sum_{i} b^{\pm}_{i}(x), \ 
+\gamma = \frac{c_{+}+c_{-}}{c_{+}+c_{-}+ \lambda}, \
+p^{h}(x \pm he_{i}|x) = \frac{c_{\pm}}{c_{+}+c_{-}}, \
+\ell^{h}(x) = \frac{h^{2} \ell(x)}{c_{+}+c_{-}},
+$$
+then it yields DPP
+$$
+v (x) = \gamma 
+\Big\{ \ell^{h}(x) + 
+\sum_{i=1}^{d} 
+p^{h}(x+he_{i}|x) v(x+he_{i})
++ p^{h}(x-he_{i}|x) v(x-he_{i})
+\Big\}.
+$$
+
+
+
+\end{document}  

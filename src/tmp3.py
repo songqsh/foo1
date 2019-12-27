@@ -6,7 +6,7 @@ Created on Wed Dec 25 19:11:52 2019
 @author: songqsh
 """
 
-#import time
+import time
 #import ipdb
 
 import torch
@@ -21,14 +21,14 @@ def deep_iter(*shape):
         
 
 ####paras for pde
-n_dim_ = 1
+n_dim_ = 5
 lam_ = 0.
 def drift(s):
     return [0.]*n_dim_
 def run(s):
-    return sum(map(lambda a: a**2, s))*(lam_- n_dim_)
+    return float(-n_dim_)
 def term(s):
-    return sum(map(lambda a: a**2, s))
+    return sum(map(lambda a: (a-.5)**2, s))
 def is_interior(s):  #domain 
     return all(map(lambda a: 0.<a<1., s))
 ######paras for computation
@@ -38,6 +38,7 @@ n_mesh_ = 8
 
 ###### index domain
 v_shape_ = tuple([n_mesh_ + 1]*n_dim_)
+v_size_ = (n_mesh_+1)**n_dim_
 h_ = 1./n_mesh_
 def i2s(ix): 
     return [x * h_ for x in ix]
@@ -78,10 +79,11 @@ value = nn.Sequential(
     nn.Linear(12, 1),
 )
 
-####Bellma equation and total loss
+####Bellman equation and total loss
 def bellman(ix):
     s = i2s(ix)
-    lhs = value(torch.FloatTensor(s)); rhs = 0
+    lhs = value(torch.FloatTensor(s)); rhs = 0.
+    #ipdb.set_trace()
     if is_interior(s):
         rhs +=run_h(ix)
         ix_next, pr_next = step(ix)
@@ -94,20 +96,20 @@ def bellman(ix):
         
 def tot_loss():
     out = 0.
-    count = 0
     for ix in deep_iter(*v_shape_):
         out += bellman(ix)
-        count +=1
-    return out
+    return out/v_size_
 
 
 
 # Loss and optimizer
 optimizer = torch.optim.SGD(value.parameters(), lr=0.01, momentum = .8) 
 
-epoch_n = 2100
+epoch_n = 20
 print_n = 10
 epoch_per_print= int(epoch_n/print_n)
+
+start_time = time.time()
 for epoch in range(epoch_n):
     loss = tot_loss() #forward pass
     #backward propogation
@@ -118,16 +120,22 @@ for epoch in range(epoch_n):
     if (epoch+1) % epoch_per_print == 0:
       print('Epoch [{}/{}], Loss: {:.4f}'.format(
               epoch+1, epoch_n, loss.item()))
+end_time = time.time()
+print('>>>time elapsed is: ' + str(end_time - start_time))
 
          
-###### check solution
+######check solution
+print(n_dim_, n_mesh_)
+def exact_soln(s):
+    return sum(map(lambda a: (a-.5)**2, s))
 err =0
 for ix1 in deep_iter(*v_shape_):
     s1 = i2s(ix1)
     v1 = value(torch.FloatTensor(s1)).item()
-    err1 = abs(v1-term(s1))
-    err=max(err1,err)
-    print(ix1, v1, term(s1))
+    err1 = v1-exact_soln(s1)
+    err += err1**2
+    #print(ix1, i2s(ix1), v1, exact_soln(s1),err1)
 
+err = err/v_size_
 print(err)
 

@@ -22,6 +22,7 @@ result = map(addition, numbers)
 n_dim_ = 2
 lam_ = 0.
 
-def run(s):
+def run():
     #return sum([a**2 for a in s])*(lam_- n_dim_)
+    s = (2,1)
     return sum(map(lambda a: a**2, s))
