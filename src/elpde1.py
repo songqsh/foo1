@@ -26,7 +26,7 @@ class Pde:
         self.n_dim_ = n_dim_
         self.lam_ = lam_
         if verbose:
-            print(str(n_dim_) + '-dim HJB')
+            print('>>>>Elliptic Linear PDE with '+str(n_dim_) + '-dim')
     
 def drift(self, s):
     return [0.]*self.n_dim_
@@ -72,7 +72,7 @@ class Mdp:
                 self.n_dim_/(self.n_dim_+self.pde.lam_*(self.h_**2))
                 )
         print(
-                'MDP with ' + str(self.n_dim_)
+                '>>>>MDP with ' + str(self.n_dim_)
                 + '-dim ' + str(self.n_mesh_) + ' mesh num'
                 )
     
@@ -125,7 +125,7 @@ class Mdp:
             rhs = self.term_h(ix)
         return (rhs - lhs)
 
-def solver(mdp):
+def solver(mdp, n_epoch = 500):
     ######### nn for value
     # Linear regression model
     value = nn.Sequential(
@@ -147,12 +147,11 @@ def solver(mdp):
             out += mdp.bellman(ix,value)**2
         return out/mdp.v_size_
     
-    epoch_n = 200
     print_n = 10
-    epoch_per_print= int(epoch_n/print_n)
+    epoch_per_print= int(n_epoch/print_n)
     
     start_time = time.time()
-    for epoch in range(epoch_n):
+    for epoch in range(n_epoch):
         loss = tot_loss() #forward pass
         #backward propogation
         optimizer.zero_grad()
@@ -161,26 +160,28 @@ def solver(mdp):
         
         if (epoch+1) % epoch_per_print == 0:
           print('Epoch [{}/{}], Loss: {:.4f}'.format(
-                  epoch+1, epoch_n, loss.item()))
+                  epoch+1, n_epoch, loss.item()))
     end_time = time.time()
     print('>>>time elapsed is: ' + str(end_time - start_time))
     return value
 
 
 #####test
-p = Pde(n_dim_=2); m = Mdp(p, n_mesh_=16)
-value = solver(m)
-######check solution
-err =0
-for ix1 in deep_iter(*m.v_shape_):
-    s1 = m.i2s(ix1)
-    v1 = value(torch.FloatTensor(s1)).item()
-    err1 = v1-p.exact_soln(s1)
-    err += err1**2
-    #print(ix1, i2s(ix1), v1, exact_soln(s1),err1)
-
-err = err/m.v_size_
-print('l2-error: '+str(err))
+if __name__=="__main__":
+        
+    p = Pde(n_dim_=1); m = Mdp(p, n_mesh_=16)
+    value = solver(m, n_epoch=300)
+    ######check solution
+    err =0
+    for ix1 in deep_iter(*m.v_shape_):
+        s1 = m.i2s(ix1)
+        v1 = value(torch.FloatTensor(s1)).item()
+        err1 = v1-p.exact_soln(s1)
+        err += err1**2
+        #print(ix1, i2s(ix1), v1, exact_soln(s1),err1)
+    
+    err = err/m.v_size_
+    print('>>>L2-error-norm: '+str(err))
 
 
 
