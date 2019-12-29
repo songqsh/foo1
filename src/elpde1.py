@@ -95,10 +95,10 @@ class Mdp:
         if self.is_interior(ix) and self.method=='cfd':
             for i in range(self.n_dim_):
                 ix1 = ix_list; ix1[i]+=1; ix_next += [tuple(ix1),]
-                pr1 = (1+self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
+                pr1 = (1+2.*self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
             for i in range(self.n_dim_):
                 ix1 = ix_list; ix1[i]-=1; ix_next += [tuple(ix1),]
-                pr1 = (1-self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
+                pr1 = (1-2.*self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
         
         return ix_next, pr_next
     

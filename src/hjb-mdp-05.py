@@ -109,8 +109,8 @@ class Pde:
             pr=[]
             if method == 'cfd':
                 b = self.drift(i2s(*ix_s), i2a(*ix_a))
-                pr_up = ((1+h_s*b)/self.dim/2.0).tolist()
-                pr_dn = ((1-h_s*b)/self.dim/2.0).tolist()
+                pr_up = ((1+2.0*h_s*b)/self.dim/2.0).tolist()
+                pr_dn = ((1-2.0*h_s*b)/self.dim/2.0).tolist()
                 pr = pr_up+pr_dn
             
             return ix_next_s, pr
