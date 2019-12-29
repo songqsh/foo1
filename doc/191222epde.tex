@@ -34,17 +34,13 @@ We want to solve a d-dimensions HJB given below:
 \subsection{Examples} 
 
 \subsubsection{Multidimensional PDE with quadratic function as its solution}
-Consider
-$$
- \frac 1 2 \Delta v - d = 0, \ x\in O.
-$$
-with
-$$
-v(x) = \sum_{i=1}^{d} (x_{i} - 1/2)^{2}, \ x\in \partial O.
-$$
+Consider a class of PDE with coefficients satisfying,
+$$d - \lambda \|x - \frac 1 2 {\bf 1}\|_{2}^{2} 
++ b(x)\cdot (2x - {\bf 1})+ \ell(x) = 0,$$
+where ${\bf 1}$ is an $\mathbb R^{d}$-vector with each element being $1$.
 The exact solution is 
 $$
-v(x) = \sum_{i=1}^{d} (x_{i} - 1/2)^{2}.
+v(x) = \|x - \frac 1 2 {\bf 1}\|_{2}^{2} = \sum_{i=1}^{d} (x_{i} - \frac 1 2)^{2}.
 $$
 
 \section{Discretization}

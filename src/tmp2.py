@@ -144,16 +144,18 @@ def solver(mdp, n_epoch = 500):
     ######### nn for value
     # Linear regression model
     value = nn.Sequential(
-        nn.Linear(mdp.n_dim_, 2*mdp.n_dim_+2),
+        nn.Linear(mdp.n_dim_, 2*mdp.n_dim_+80),
         nn.ReLU(),
-        nn.Linear(2*mdp.n_dim_+2, 2),
+        nn.Linear(2*mdp.n_dim_+80, 5),
+        nn.ReLU(),
+        nn.Linear(5,2),
         nn.ReLU(),
         nn.Linear(2,1)
     )   
     print(value)
     
     # optimizer
-    optimizer = torch.optim.SGD(value.parameters(), lr=0.01, momentum = .8) 
+    optimizer = torch.optim.SGD(value.parameters(), lr=0.001, momentum = .8) 
     
     #loss
     def tot_loss():
@@ -185,7 +187,7 @@ def solver(mdp, n_epoch = 500):
 if __name__=="__main__":
         
     p = Pde(n_dim_=1); m = Mdp(p, n_mesh_=16)
-    value = solver(m, n_epoch=300)
+    value = solver(m, n_epoch=1000)
     ######check solution
     err =0
     for ix1 in deep_iter(*m.v_shape_):
