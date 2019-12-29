@@ -103,17 +103,21 @@ class Mdp:
             for i in range(self.n_dim_):
                 ix1 = ix_list; ix1[i]-=1; ix_next += [tuple(ix1),]
                 pr1 = (1-2.*self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
-                '''
+            
         elif self.method=='ufd':
             b_plus = [max(a,0.) for a in b]
             b_minus = [min(-a,0.) for a in b]
-            c_plus = self.n_dim_/2.0 + self.h_*sum(b_plus)
-            c_minus = self.n_dim_/2.0 + self.h_*sum(b_minus)
-            c_abs = c_plus+c_minus
-            discount_rate= c_abs/(c_abs+self.pde.lam_)
-            run_h = self.pde.run(s)*self.h_**2/c_abs
+            c_ = self.n_dim_ + self.h_*(sum(b_plus)+sum(b_minus))
+            discount_rate= c_/(c_+self.h_**2*self.pde.lam_)
+            run_h = self.pde.run(s)*self.h_**2/c_
+            for i in range(self.n_dim_):
+                ix1 = ix_list; ix1[i]+=1; ix_next += [tuple(ix1),]
+                pr1 = (1+2.*self.h_*b_plus[i])/c_; pr_next += [pr1,]
+            for i in range(self.n_dim_):
+                ix1 = ix_list; ix1[i]-=1; ix_next += [tuple(ix1),]
+                pr1 = (1+2.*self.h_*b_minus[i])/c_; pr_next += [pr1,]
             
-            '''
+        
         
         return discount_rate, run_h, ix_next, pr_next
     
