@@ -80,7 +80,7 @@ class Mdp:
     def is_interior(self, ix):
         return all(map(lambda a: 0<a<self.n_mesh_, ix))
     
-    #####transition
+    #####transition only for interior
     #return:
     #   a float of discount rate
     #   a float of run cost
@@ -99,10 +99,10 @@ class Mdp:
             run_h = self.pde.run(s)*self.h_**2/self.n_dim_
         
             for i in range(self.n_dim_):
-                ix1 = ix_list; ix1[i]+=1; ix_next += [tuple(ix1),]
+                ix1 = ix_list.copy(); ix1[i]+=1; ix_next += [tuple(ix1),]
                 pr1 = (1+2.*self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
             for i in range(self.n_dim_):
-                ix1 = ix_list; ix1[i]-=1; ix_next += [tuple(ix1),]
+                ix1 = ix_list.copy(); ix1[i]-=1; ix_next += [tuple(ix1),]
                 pr1 = (1-2.*self.h_*b[i])/self.n_dim_/2.0; pr_next += [pr1,]
             
         elif self.method=='ufd':
@@ -112,11 +112,11 @@ class Mdp:
             discount_rate= c_/(c_+self.h_**2*self.pde.lam_)
             run_h = self.pde.run(s)*self.h_**2/c_
             for i in range(self.n_dim_):
-                ix1 = ix_list; ix1[i]+=1; ix_next += [tuple(ix1),]
-                pr1 = (1+2.*self.h_*b_plus[i])/c_; pr_next += [pr1,]
+                ix1 = ix_list.copy(); ix1[i]+=1; ix_next += [tuple(ix1),]
+                pr1 = (1+2.*self.h_*b_plus[i])/c_/2.0; pr_next += [pr1,]
             for i in range(self.n_dim_):
-                ix1 = ix_list; ix1[i]-=1; ix_next += [tuple(ix1),]
-                pr1 = (1+2.*self.h_*b_minus[i])/c_; pr_next += [pr1,]
+                ix1 = ix_list.copy(); ix1[i]-=1; ix_next += [tuple(ix1),]
+                pr1 = (1+2.*self.h_*b_minus[i])/c_/2.0; pr_next += [pr1,]
             
         
         
@@ -145,14 +145,11 @@ def solver(mdp, n_epoch = 500):
     ######### nn for value
     # Linear regression model
     value = nn.Sequential(
-        nn.Linear(mdp.n_dim_, 2*mdp.n_dim_+2),
+        nn.Linear(mdp.n_dim_, 2*mdp.n_dim_+10),
         nn.ReLU(),
-        nn.Linear(2*mdp.n_dim_+2, 1),
+        nn.Linear(2*mdp.n_dim_+10, 1),
     )   
     print(value)
-    
-    # optimizer
-    optimizer = torch.optim.SGD(value.parameters(), lr=0.01, momentum = .8) 
     
     #loss
     def tot_loss():
@@ -161,7 +158,7 @@ def solver(mdp, n_epoch = 500):
             out += mdp.bellman(ix,value)**2
         return out#/mdp.v_size_
     
-    print_n = 10
+    print_n = 100
     epoch_per_print= int(n_epoch/print_n)
     
     start_time = time.time()
@@ -169,6 +166,9 @@ def solver(mdp, n_epoch = 500):
         #ipdb.set_trace()
         loss = tot_loss() #forward pass
         #backward propogation
+        # optimizer
+        lr = max(1/(epoch+10.), .001)
+        optimizer = torch.optim.SGD(value.parameters(), lr, momentum = .8) 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -176,6 +176,8 @@ def solver(mdp, n_epoch = 500):
         if (epoch+1) % epoch_per_print == 0:
           print('Epoch [{}/{}], Loss: {:.4f}'.format(
                   epoch+1, n_epoch, loss.item()))
+        if loss.item()<0.0002:
+            break
     end_time = time.time()
     print('>>>time elapsed is: ' + str(end_time - start_time))
     return value
@@ -183,8 +185,8 @@ def solver(mdp, n_epoch = 500):
 
 #####test
 if __name__=="__main__":        
-    p = Pde(n_dim_=1); m = Mdp(p, n_mesh_=8, method='cfd')
-    value = solver(m, n_epoch=100)
+    p = Pde(n_dim_=1); m = Mdp(p, n_mesh_= 8, method='cfd')
+    value = solver(m, n_epoch=500000)
     ######check solution
     err =0
     for ix1 in deep_iter(*m.v_shape_):
@@ -193,7 +195,6 @@ if __name__=="__main__":
         exact_v1 =p.exact_soln(s1) 
         err1 = v1-exact_v1
         err += err1**2
-        #print(ix1, i2s(ix1), v1, exact_soln(s1),err1)
     
     err = err/m.v_size_
     print('>>>L2-error-norm: '+str(err))
