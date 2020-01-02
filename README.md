@@ -13,6 +13,7 @@
 - SB18-Example 4.1-Gridworld -[ipynb](src/sb18-exm-4-1.ipynb)
 - gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
 - MDP from HJB - [pdf](doc/191206HJB.pdf) - [ipynb](src/hjb_mdp_05.ipynb)
+- HJB-MDP by NN - [pdf](doc/191206HJB.pdf) - [ipynb](src/hjb_mdp_nn_1.ipynb)
 - 1d MDP with q-table - [ipynb](src/mdp_1d_qtable.ipynb)
 - cliff walking: Sarsa/Q-learning - [ipynb](src/cliff_v01.ipynb)
 - Backward in time dynamic programing on HJB with Cauchy data - [ipynb](src/dp_hjb_cauchy.ipynb)
