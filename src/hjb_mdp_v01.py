@@ -102,7 +102,7 @@ def product(l):
 
 
 #value iteration    
-mdp = Mdp(n_dim=2, n_mesh=8)
+mdp = Mdp(n_dim=1, n_mesh=8)
 v = np.zeros(mdp.v_shape) #init
 for ix in deep_iter(*mdp.v_shape):
     if not mdp.is_interior(ix):
@@ -117,7 +117,7 @@ for n_iter in range(max_iter):
     err = 0.
     for ix in deep_iter(*mdp.v_shape):
         if mdp.is_interior(ix):
-            fun = lambda a: mdp.q_val(v, list(ix), policy[ix])
+            fun = lambda a: mdp.q_val(v, list(ix), a)
             res = minimize(fun, np.zeros([mdp.n_dim,]))
             v_cp[ix] = res.fun
             policy[ix] = res.x

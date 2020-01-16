@@ -70,6 +70,8 @@ class Mdp(Pde):
                     pr_next += [pr1,]
         elif fd=='ufd':
             c = self.n_dim+sum([abs(b1) for b1 in b])*self.h_mesh
+            b_plus = [(abs(b1)+b1)/2. for b1 in b]
+            b_minus = [(abs(b1)-b1)/2. for b1 in b]
             lam = c/(c+self.h_mesh**2*self.lam)
             run_cost_h = self.h_mesh**2*self.run_cost(s,a)/c
             ix_next = []; pr_next= []
@@ -77,39 +79,25 @@ class Mdp(Pde):
             if self.is_interior(ix):
                 for i in range(self.n_dim):
                     ix1 = ix.copy(); ix1[i]+=1; ix_next += [ix1,]
-                    bi_plus = (abs(b[i])+b)/2.
-                    pr1 = (1+2.*self.h_mesh*bi_plus)/(c*2.0) 
+                    pr1 = (1+2.*self.h_mesh*b_plus[i])/(c*2.0) 
                     pr_next += [pr1,]
                 for i in range(self.n_dim):
                     ix1 = ix.copy(); ix1[i]-=1; ix_next += [ix1,]
-                    bi_minus = (abs(b[i])-b)/2.
-                    pr1 = (1-2.*self.h_mesh*bi_minus)/(c*2.0) 
+                    pr1 = (1-2.*self.h_mesh*b_minus[i])/(c*2.0) 
                     pr_next += [pr1,]        
         return lam, run_cost_h, ix_next, pr_next
     
-    #input:
-        #ndarray v of v_shape
-        #list of index and action
-    #return:
-        #q_val assuming v is value
-    def q_val(self, v, ix, a, fd='cfd'):
-        lam, run_cost_h, ix_next, pr_next = self.step(ix,a,fd)
-        out = run_cost_h
-        for ix1, pr1 in zip(ix_next, pr_next):
-            out+=pr1*v[tuple(ix1)]
-        out *= lam
-        return out
+
  
 ####################
-       
-
-import numpy as np
 import itertools
-from scipy.optimize import minimize
 
 def deep_iter(*shape):
     iters = (range(i) for i in shape)
     return itertools.product(*iters)
+
+import numpy as np
+
 
 #product of a list
 def product(l):
@@ -119,65 +107,85 @@ def product(l):
     return out
 
 
-#value iteration    
-mdp = Mdp(n_dim=2, n_mesh=8)
+def i2a(ix):
+    return [ix1*1./n_mesh for ix1 in ix]
+
+
+#value iteration 
+n_dim = 2; n_mesh = 8
+mdp = Mdp(n_dim, n_mesh)
 v = np.zeros(mdp.v_shape) #init
+a_space = tuple([3*n_mesh+1,]*n_dim)
+p_shape = tuple(list(mdp.v_shape)+[mdp.n_dim,])
+policy = np.zeros(p_shape) #init
+
+#boundary value
 for ix in deep_iter(*mdp.v_shape):
     if not mdp.is_interior(ix):
         v[ix] = mdp.term_cost(mdp.i2s(ix))
 
-p_shape = tuple(list(mdp.v_shape)+[mdp.n_dim,])
-policy = np.zeros(p_shape) #init
 
+#input:
+    #list of index and action
+#return:
+    #q_val assuming v is value
+def q_val(ix, a, fd):
+    lam, run_cost_h, ix_next, pr_next = mdp.step(ix,a,fd)
+    out = run_cost_h
+    for ix1, pr1 in zip(ix_next, pr_next):
+        out+=pr1*v[tuple(ix1)]
+    out *= lam
+    return out
+
+#minimum over action space
+def min_a(fun):
+    out_ind = [0,]*n_dim; out_val = fun(i2a(out_ind))
+    for ix in deep_iter(*a_space):
+        if fun(i2a(ix))<out_val:
+            out_ind = ix; out_val = fun(i2a(ix))
+    return out_ind, out_val
+
+            
+            
 tol = 1e-5; max_iter = 1000
 for n_iter in range(max_iter):
     v_cp = np.copy(v)
     err = 0.
     for ix in deep_iter(*mdp.v_shape):
         if mdp.is_interior(ix):
-            fun = lambda a: mdp.q_val(v, list(ix), a, fd='ufd')
-            res = minimize(fun, policy[ix])
-            v_cp[ix] = res.fun
-            policy[ix] = res.x
+            fun = lambda a: q_val(list(ix), a, fd='ufd')
+            out_ix, out_v = min_a(fun)
+            policy[ix] = list(out_ix); v_cp[ix] = out_v
             err += (v_cp[ix]-v[ix])**2
     v = np.copy(v_cp)
     if err<tol:
         break
     
-print('>>>>', err)
+print('>>>>tol: ', err)
     
 #check
 err = 0
+exact_val = np.zeros(mdp.v_shape)
+
 for ix in deep_iter(*mdp.v_shape):
-    exact_val = mdp.exact_soln(mdp.i2s(list(ix)))
-    #print(exact_val, v[ix])
-    err += (exact_val- v[ix])**2
+    exact_val[ix] = mdp.exact_soln(mdp.i2s(list(ix)))
+    err += (exact_val[ix]- v[ix])**2
 err = err/product(mdp.v_shape)
     
-print('>>>>', err, n_iter)
+print('>>>>err:'+str(err)+',n_iter: '+str(n_iter))
     
     
+import matplotlib.pyplot as plt    
+
+if n_dim==1:
+    x_cod = np.zeros(mdp.v_shape)
+    for ix in deep_iter(*mdp.v_shape):
+        x_cod[ix] = mdp.i2s(list(ix))[0]
         
-            
+    plt.plot(x_cod, v, x_cod, exact_val)
+                
         
     
 
 
 
-
-                    
-'''
-#### test Mdp
-s =[.5,0.6]; a = [0.,0.1];ix1 =[4,7];ix2= [5,9]
-m = Mdp(n_mesh=8)
-print('test Mdp')
-print(m.n_dim, m.n_mesh, m.h_mesh, m.v_shape)
-print(m.i2s(ix1), m.i2s(ix2))
-print(m.is_interior(ix1), m.is_interior(ix2))
-print(m.step_cfd(ix1, a))
-print(m.step_cfd(ix2, a))
-print(m.run_cost(s,a))
-print(m.term_cost(s))
-#### test ends
-
-'''
