@@ -165,7 +165,7 @@ class ValueIter(Mdp):
 
 
 #check
-vi = ValueIter(n_dim=3, n_mesh=8, fd='ufd')
+vi = ValueIter(n_dim=2, n_mesh=8, fd='ufd')
 err, n_iter = vi.solver()
 print('>>>running err:' +str(err)+' n_iter: '+ str(n_iter))
 
