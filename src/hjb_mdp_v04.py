@@ -103,7 +103,7 @@ def product(l):
     for x in l:
         out *= x
     return out
-
+############ Your solver
 
 import numpy as np
 
