@@ -127,6 +127,7 @@ class ValueIter(Mdp):
     
     
     def i2a(self, ix):
+        ix = list(ix)
         return [ix1*1./self.n_mesh for ix1 in ix]
     
     #input:
@@ -157,7 +158,7 @@ class ValueIter(Mdp):
                 if self.is_interior(ix):
                     fun = lambda a: self.q_val(list(ix), a, self.fd)
                     out_ix, out_v = self.min_a(fun)
-                    self.policy[ix] = list(out_ix); v_cp[ix] = out_v
+                    self.policy[ix] = self.i2a(out_ix); v_cp[ix] = out_v
                     err += (v_cp[ix]-self.v[ix])**2
             self.v = np.copy(v_cp)
             if err<self.tol:
@@ -224,15 +225,12 @@ class PolicyEvaluation(Mdp):
                 self.v[ix] = self.term_cost(self.i2s(ix))
     
     
-    def i2a(self, ix):
-        return [ix1*1./self.n_mesh for ix1 in ix]
-    
     #input:
         #list of index and method
     #return:
         #rhs_val assuming v is value
     def rhs_val(self, ix, fd):
-        a = self.i2a(self.policy[ix])
+        a = self.policy[ix]
         lam, run_cost_h, ix_next, pr_next = self.step(ix,a,fd)
         out = run_cost_h
         for ix1, pr1 in zip(ix_next, pr_next):
