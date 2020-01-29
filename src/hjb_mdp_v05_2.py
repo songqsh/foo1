@@ -112,7 +112,7 @@ def product(l):
 
 import numpy as np
 
-class ValueIter(Mdp):
+class Solver(Mdp):
     def __init__(self, n_dim = 1, n_mesh = 8, fd = 'ufd', verbatim = False):
         super().__init__(n_dim, n_mesh, verbatim)
         self.fd = fd
@@ -134,34 +134,41 @@ class ValueIter(Mdp):
         return [ix1*1./self.n_mesh for ix1 in ix]
     
     #input:
-        #list of index and action, method
+        #list of index and action
     #return:
         #q_val assuming v is value
-    def q_val(self, ix, a, fd):
-        lam, run_cost_h, ix_next, pr_next = self.step(ix,a,fd)
+    def q_val(self, ix, a):
+        lam, run_cost_h, ix_next, pr_next = self.step(ix,a,self.fd)
         out = run_cost_h
         for ix1, pr1 in zip(ix_next, pr_next):
             out+=pr1*self.v[tuple(ix1)]
         out *= lam
         return out
-    
-    #minimum over action space
-    def min_a(self, fun):
-        out_ind = [0,]*self.n_dim; out_val = fun(self.i2a(out_ind))
-        for ix in deep_iter(*self.a_space):
-            if fun(self.i2a(ix))<out_val:
-                out_ind = ix; out_val = fun(self.i2a(ix))
-        return out_ind, out_val
+ 
+    #input:
+        #list of index
+    #return:
+        #list of optimal action
+        #corresponding q-value assuming v is value
+    def value2action(self, ix):
+        a_ix = [0,]*self.n_dim; out_v = self.q_val(ix, self.i2a(a_ix))
+        for a_ix1 in deep_iter(*self.a_space):
+            out_v1 = self.q_val(ix, self.i2a(a_ix1))
+            if out_v1 < out_v:
+                a_ix = a_ix1; out_v = out_v1
+        return self.i2a(a_ix), out_v
+                
+        
 
-    def solver(self):    
+    def value_iter(self):    
         for n_iter in range(self.max_iter):
             v_cp = np.copy(self.v)
             err = 0.
             for ix in deep_iter(*self.v_shape):
                 if self.is_interior(ix):
-                    fun = lambda a: self.q_val(list(ix), a, self.fd)
-                    out_ix, out_v = self.min_a(fun)
-                    self.policy[ix] = self.i2a(out_ix); v_cp[ix] = out_v
+                    #fun = lambda a: self.q_val(list(ix), a)
+                    out_a, out_v = self.value2action(ix)
+                    self.policy[ix] = out_a; v_cp[ix] = out_v
                     err += (v_cp[ix]-self.v[ix])**2
             self.v = np.copy(v_cp)
             if err<self.tol:
@@ -175,8 +182,8 @@ import time
 print('>>>>>>>check<<<<<<<<<')
 
 startime = time.time()
-vi = ValueIter(n_dim=1, n_mesh=8, fd='ufd', verbatim = True)
-err, n_iter = vi.solver()
+ag1 = Solver(n_dim=2, n_mesh= 8, fd='ufd', verbatim = True)
+err, n_iter = ag1.value_iter()
 endtime = time.time()
 
 
@@ -184,26 +191,27 @@ print('>>>elapsed time: ' + str(endtime-startime))
 print('>>>running err:' +str(err)+' n_iter: '+ str(n_iter))
 
 err = 0
-exact_val = np.zeros(vi.v_shape)
+exact_val = np.zeros(ag1.v_shape)
 
-for ix in deep_iter(*vi.v_shape):
-    exact_val[ix] = vi.exact_soln(vi.i2s(list(ix)))
-    err += (exact_val[ix]- vi.v[ix])**2
-err = err/product(vi.v_shape)
+for ix in deep_iter(*ag1.v_shape):
+    exact_val[ix] = ag1.exact_soln(ag1.i2s(list(ix)))
+    err += (exact_val[ix]- ag1.v[ix])**2
+err = err/product(ag1.v_shape)
     
-print('>>>>err:'+str(err))
-    
-    
+print('>>>>exact err:'+str(err))
+
+
 import matplotlib.pyplot as plt    
 
-if vi.n_dim==1:
-    x_cod = np.zeros(vi.v_shape)
-    for ix in deep_iter(*vi.v_shape):
-        x_cod[ix] = vi.i2s(list(ix))[0]
+if ag1.n_dim==1:
+    x_cod = np.zeros(ag1.v_shape)
+    for ix in deep_iter(*ag1.v_shape):
+        x_cod[ix] = ag1.i2s(list(ix))[0]
         
-    plt.plot(x_cod, vi.v, x_cod, exact_val)
+    plt.plot(x_cod, ag1.v, x_cod, exact_val)
 #end check ValueIter                
         
+
 
 
 ###begin policy evaluation
@@ -232,9 +240,9 @@ class PolicyEvaluation(Mdp):
         #list of index and method
     #return:
         #rhs_val assuming v is value
-    def rhs_val(self, ix, fd):
+    def rhs_val(self, ix):
         a = self.policy[ix]
-        lam, run_cost_h, ix_next, pr_next = self.step(ix,a,fd)
+        lam, run_cost_h, ix_next, pr_next = self.step(ix,a,self.fd)
         out = run_cost_h
         for ix1, pr1 in zip(ix_next, pr_next):
             out+=pr1*self.v[tuple(ix1)]
@@ -248,7 +256,7 @@ class PolicyEvaluation(Mdp):
             err = 0.
             for ix in deep_iter(*self.v_shape):
                 if self.is_interior(ix):
-                    v_cp[ix] = self.rhs_val(ix, self.fd)
+                    v_cp[ix] = self.rhs_val(ix)
                     err += (v_cp[ix]-self.v[ix])**2
             self.v = np.copy(v_cp)
             if err<self.tol:
@@ -258,11 +266,12 @@ class PolicyEvaluation(Mdp):
 
 ###end policy evaluation
         
+
 ###begin check 
 print('>>>>>>>check<<<<<<<<<')
 starttime = time.time()
-pe = PolicyEvaluation(vi.policy, n_dim = vi.n_dim, 
-                      n_mesh=vi.n_mesh, fd = vi.fd)
+pe = PolicyEvaluation(ag1.policy, n_dim = ag1.n_dim, 
+                      n_mesh=ag1.n_mesh, fd = ag1.fd)
 err, n_iter = pe.solver()
 endtime = time.time()
 
@@ -270,9 +279,9 @@ print('>>>elapsed time: ' + str(endtime-startime))
 print('>>>running err:' +str(err)+' n_iter: '+ str(n_iter))
 
 err = 0
-for ix in deep_iter(*vi.v_shape):
-    err += (pe.v[ix]- vi.v[ix])**2
-err = err/product(vi.v_shape)
+for ix in deep_iter(*ag1.v_shape):
+    err += (pe.v[ix]- ag1.v[ix])**2
+err = err/product(ag1.v_shape)
     
 print('>>>>err:'+str(err))
 
