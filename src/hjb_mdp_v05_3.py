@@ -167,9 +167,9 @@ class Solver(Mdp):
             for ix in deep_iter(*self.v_shape):
                 if self.is_interior(ix):
                     out_a, out_v = self.greedy(ix)
-                    self.policy[ix] = out_a; v_cp[ix] = out_v
-                    err += (v_cp[ix]-self.v[ix])**2
-            self.v = np.copy(v_cp)
+                    self.policy[ix] = out_a; self.v[ix] = out_v
+                    err += (v_cp[ix]-out_v)**2
+
             if err<self.tol:
                 break
         return err, n_iter
