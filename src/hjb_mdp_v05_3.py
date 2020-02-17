@@ -93,7 +93,7 @@ class Mdp(Pde):
     
 
  
-####################
+####################supplemental tools
 import itertools
 
 def deep_iter(*shape):
@@ -205,7 +205,7 @@ class Solver(Mdp):
 import time
 
 #begin check ValueIter
-print('>>>>>>>check<<<<<<<<<')
+print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
 ag1 = Solver(n_dim=2, n_mesh= 8, fd='ufd', verbatim = True)
@@ -225,6 +225,8 @@ for ix in deep_iter(*ag1.v_shape):
 err = err/product(ag1.v_shape)
     
 print('>>>>exact err:'+str(err))
+
+print('>>>>end check<<<<')
 
 
 import matplotlib.pyplot as plt    
@@ -295,7 +297,7 @@ class PolicyEvaluation(Mdp):
         
 
 ###begin check 
-print('>>>>>>>check<<<<<<<<<')
+print('>>>>>>>check policy evaluation<<<<<<<<<')
 starttime = time.time()
 pe = PolicyEvaluation(ag1.policy, n_dim = ag1.n_dim, 
                       n_mesh=ag1.n_mesh, fd = ag1.fd)
@@ -311,12 +313,12 @@ for ix in deep_iter(*ag1.v_shape):
 err = err/product(ag1.v_shape)
     
 print('>>>>err:'+str(err))
-
+print('>>>>>>>end check <<<<<<<<<')
 ####end check######################
 
 
 #begin check policy iter, compared to value iter
-print('>>>>>>>check<<<<<<<<<')
+print('>>>>>>>check policy iteration vs value iteration<<<<<<<<<')
 
 startime = time.time()
 ag2 = Solver(n_dim=ag1.n_dim, n_mesh= ag1.n_mesh, fd= ag1.fd, verbatim = True)
@@ -345,6 +347,8 @@ if ag2.n_dim==1:
         
     plt.plot(x_cod, ag2.v, x_cod, ag1.v)
     plt.show()
+    
+print('>>>end check<<<')    
 #end check policy iter            
         
 
