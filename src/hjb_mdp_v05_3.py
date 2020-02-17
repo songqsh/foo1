@@ -208,7 +208,7 @@ import time
 print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
-ag1 = Solver(n_dim=2, n_mesh= 8, fd='ufd', verbatim = True)
+ag1 = Solver(n_dim=1, n_mesh= 8, fd='ufd', verbatim = True)
 err, n_iter = ag1.value_iter()
 endtime = time.time()
 
