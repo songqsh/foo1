@@ -34,8 +34,8 @@ class Pde:
             + sum([a1**2 for a1 in a])/2.0
             )
     
-    term_cost = lambda self,s: - sum([s1**2 for s1 in s])
-    exact_soln = lambda self,s: - sum([s1**2 for s1 in s])
+    term_cost = lambda self,s: - sum([s1**2 for s1 in s]) + self.n_dim
+    exact_soln = lambda self,s: - sum([s1**2 for s1 in s]) + self.n_dim
 
 
 class Mdp(Pde):
@@ -371,13 +371,22 @@ class solver_nn(Mdp):
         super().__init__(n_dim, n_mesh)
         self.fd = fd
         self.a_space = tuple([3*n_mesh+1,]*n_dim)
+        h = [self.n_dim,8,4,2]
         self.vf = nn.Sequential(
-                nn.Linear(self.n_dim, 2*self.n_dim+10),
+                nn.Linear(h[0], h[1]),
                 #nn.ReLU(),
-                nn.Sigmoid(),
-                nn.Linear(2*self.n_dim+10, 2*self.n_dim+10),
-                nn.Sigmoid(),
-                nn.Linear(2*self.n_dim+10, 1)
+                nn.LeakyReLU(),
+                #nn.Sigmoid(),
+                #nn.Tanh(),
+                nn.Linear(h[1], h[2]),
+                #nn.Sigmoid(),
+                #nn.ReLU(),
+                nn.LeakyReLU(),
+                #nn.Tanh(),
+                nn.Linear(h[2], h[3]),
+                #nn.ReLU(),
+                nn.LeakyReLU(),
+                nn.Linear(h[3], 1),
                 ) 
         print(self.vf)
         
@@ -414,7 +423,7 @@ class solver_nn(Mdp):
         return self.i2a(a_ix), out_v
                 
     
-    def value_gd1(self, n_epoch = 50):
+    def value_gd1(self, n_epoch = 50, lr=.001):
         print_n = 10
         epoch_per_print = max(int(n_epoch/print_n),1)
         
@@ -426,12 +435,12 @@ class solver_nn(Mdp):
                 ix_s = self.i2s(ix)
                 v1 = self.vf(torch.FloatTensor(ix_s))
                 if self.is_interior(ix):
-                    #loss+= (self.greedy(ix)[1]-v1)**2
-                    loss+= (self.exact_soln(ix_s)-v1)**2
+                    loss+= (self.greedy(ix)[1]-v1)**2
+                    #loss+= 5.*(self.exact_soln(ix_s)-v1)**2
                 else:
-                    loss+= 1.*(self.term_cost(ix_s) - 
+                    loss+= 10.*(self.term_cost(ix_s) - 
                               self.vf(torch.FloatTensor(ix_s)))**2                   
-            lr = max(1/((epoch+2000.)), .00045)
+            
             optimizer = torch.optim.SGD(
                     self.vf.parameters(), lr, momentum=.8)
             
@@ -447,37 +456,39 @@ class solver_nn(Mdp):
         end_time = time.time()
         print('>>>time elapsed is: ' + str(end_time - start_time))
         
-    
+    def err_l2(self):
+        err = 0
+        for ix in deep_iter(*self.v_shape):
+            ix_s = self.i2s(list(ix))
+            exact_val = self.exact_soln(ix_s)
+            approx_val = self.vf(torch.FloatTensor(ix_s)).item()
+            err += (exact_val - approx_val)**2
+        err = err/product(self.v_shape)
+        return math.sqrt(err)
+        
+        
+    def plot1d(self):
+        if self.n_dim==1:
+            x_cod = np.zeros(self.v_shape)
+            y1_cod = np.zeros(self.v_shape)
+            y2_cod = np.zeros(self.v_shape)
+            for ix in deep_iter(*self.v_shape):
+                x_cod[ix] = self.i2s(list(ix))[0]
+                ix_s = self.i2s(list(ix))
+                y1_cod[ix] = self.vf(torch.FloatTensor(ix_s)).item()
+                y2_cod[ix] = self.exact_soln(ix_s)
+                
+            plt.plot(x_cod, y1_cod, x_cod, y2_cod)
+            plt.show()
+        else:
+            print('>>>>plot must be 1d<<<<')
+        
     
 ##############begin check solver_nn##########
 print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')        
 
-for i in range(1):        
-    agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-    agt3.value_gd1(n_epoch=300)  
-    
-    err = 0
-    for ix in deep_iter(*agt3.v_shape):
-        ix_s = agt3.i2s(list(ix))
-        exact_val = agt3.exact_soln(ix_s)
-        approx_val = agt3.vf(torch.FloatTensor(ix_s)).item()
-        err += (exact_val - approx_val)**2
-    err = err/product(agt3.v_shape)
-    err = math.sqrt(err)
-    
-    
-    print('>>>>>> L2 error is ' + str(err))
-    
-    
-    if agt3.n_dim==1:
-        x_cod = np.zeros(agt3.v_shape)
-        y1_cod = np.zeros(agt3.v_shape)
-        y2_cod = np.zeros(agt3.v_shape)
-        for ix in deep_iter(*agt3.v_shape):
-            x_cod[ix] = agt3.i2s(list(ix))[0]
-            ix_s = agt3.i2s(list(ix))
-            y1_cod[ix] = agt3.vf(torch.FloatTensor(ix_s)).item()
-            y2_cod[ix] = agt3.exact_soln(ix_s)
-            
-        plt.plot(x_cod, y1_cod, x_cod, y2_cod)
-        plt.show()
+
+agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
+agt3.value_gd1(n_epoch=1000, lr=.01)  
+print('>>>>>> L2 error is ' + str(agt3.err_l2()))
+agt3.plot1d()
