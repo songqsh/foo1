@@ -18,7 +18,10 @@ Section 1.2.2 of 191206HJB.pdf
 
 
 import math
+import random
+import numpy as np
 import matplotlib.pyplot as plt   
+
 
 class Pde:
     def __init__(self, n_dim = 2, verbatim = False):
@@ -96,6 +99,11 @@ class Mdp(Pde):
                     pr_next += [pr1,]        
         return lam, run_cost_h, ix_next, pr_next
     
+    def step_random(self, ix, a, fd='cfd'):
+        lam, run_cost, ix_next, pr_next = self.step(ix, a, fd)
+        ix_next_rand = random.choices(ix_next, pr_next, k = 1)
+        return lam, run_cost, ix_next_rand[0]    
+    
 
  
 ####################supplemental tools
@@ -114,8 +122,6 @@ def product(l):
     return out
 
 ############  solvers
-
-import numpy as np
 
 class Solver(Mdp):
     def __init__(self, n_dim = 1, n_mesh = 8, fd = 'ufd', verbatim = False):
@@ -424,14 +430,19 @@ class solver_nn(Mdp):
                 
     
     def value_gd1(self, n_epoch = 50, lr=.001):
-        print_n = 10
-        epoch_per_print = max(int(n_epoch/print_n),1)
+        
+        epoch_per_print = 100
         
         start_time = time.time()
         
+        flag = False #to stop
+        epoch =0
         loss = torch.FloatTensor([100.,])
-        for epoch in range(n_epoch):
-            lossp = loss.item(); loss = torch.FloatTensor([0.,])
+        
+        while not flag:
+            epoch +=1
+            lossp = loss.item()
+            loss = torch.FloatTensor([0.,])           
             for ix in deep_iter(*self.v_shape):
                 ix_s = self.i2s(ix)
                 v1 = self.vf(torch.FloatTensor(ix_s))
@@ -450,14 +461,76 @@ class solver_nn(Mdp):
             optimizer.step()
             
             if (epoch) % epoch_per_print == 0:
-              print('Epoch [{}/{}], Loss: {:.4f}'.format(
-                      epoch+1, n_epoch, loss.item()))
-            if loss.item()<1e-4 or abs(lossp - loss.item())<1e-5:
-                break
+              print('Epoch '+ str(epoch) + ', Loss: '+ str(loss.item()))
+              
+            flag = (loss.item()<1e-4 or 
+                    abs(lossp - loss.item())<1e-6 or
+                    epoch>n_epoch
+                    )
+ 
         end_time = time.time()
-        print('>>>time elapsed is: ' + str(end_time - start_time))
-        print('>>>final loss is: ' + str(loss.item()))
-        print('>>> number of iteration is '+ str(epoch))
+        return end_time - start_time, loss.item(), epoch
+    
+    
+    ##### current work#######################################################################
+    def value_sgd1(self, n_epoch = 50, lr=.001):
+        mem_len = 10
+        epoch_per_print = 100     
+        start_time = time.time()
+        
+        flag = False #to stop
+        epoch =0
+        loss = torch.FloatTensor([100.,])
+        
+        while not flag:
+            epoch +=1
+            lossp = loss.item()
+            loss = torch.FloatTensor([0.,])    
+            
+            #randomly choose start point
+            ix = list(np.random.randint(
+                0, high=self.n_mesh+1, size=self.n_dim))
+            ix_s = self.i2s(ix)
+            
+            for i in range(mem_len):
+                v0 = self.vf(torch.FloatTensor(ix_s))
+                if self.is_interior(ix):
+                    a0, v1 = self.greedy(ix)
+                    loss+=(v1-v0)**2
+                    _, _, ii, pp = self.step(ix, a0, self.fd)
+                    
+            
+            for ix in deep_iter(*self.v_shape):
+                ix_s = self.i2s(ix)
+                v1 = self.vf(torch.FloatTensor(ix_s))
+                if self.is_interior(ix):
+                    loss+= 50.*(self.greedy(ix)[1]-v1)**2
+                    #loss+= 50.*(self.exact_soln(ix_s)-v1)**2
+                else:
+                    loss+= 100.*(self.term_cost(ix_s) - 
+                              self.vf(torch.FloatTensor(ix_s)))**2                   
+            
+            optimizer = torch.optim.SGD(
+                    self.vf.parameters(), lr, momentum=.8)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            if (epoch) % epoch_per_print == 0:
+              print('Epoch '+ str(epoch) + ', Loss: '+ str(loss.item()))
+              
+            flag = (loss.item()<1e-4 or 
+                    abs(lossp - loss.item())<1e-6 or
+                    epoch>n_epoch
+                    )
+ 
+        end_time = time.time()
+        return end_time - start_time, loss.item(), epoch    
+    
+    
+    
+    
         
     def err_l2(self):
         err = 0
@@ -492,6 +565,6 @@ print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')
 
 
 agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-agt3.value_gd1(n_epoch=1000, lr=.001)  
+agt3.value_gd1(n_epoch=10000, lr=.001)  
 print('>>>>>> L2 error is ' + str(agt3.err_l2()))
 agt3.plot1d()

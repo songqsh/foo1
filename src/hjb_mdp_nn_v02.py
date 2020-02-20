@@ -424,14 +424,19 @@ class solver_nn(Mdp):
                 
     
     def value_gd1(self, n_epoch = 50, lr=.001):
-        print_n = 10
-        epoch_per_print = max(int(n_epoch/print_n),1)
+        
+        epoch_per_print = 100
         
         start_time = time.time()
         
+        flag = False #to stop
+        epoch =0
         loss = torch.FloatTensor([100.,])
-        for epoch in range(n_epoch):
-            lossp = loss.item(); loss = torch.FloatTensor([0.,])
+        
+        while not flag:
+            epoch +=1
+            lossp = loss.item()
+            loss = torch.FloatTensor([0.,])           
             for ix in deep_iter(*self.v_shape):
                 ix_s = self.i2s(ix)
                 v1 = self.vf(torch.FloatTensor(ix_s))
@@ -450,10 +455,13 @@ class solver_nn(Mdp):
             optimizer.step()
             
             if (epoch) % epoch_per_print == 0:
-              print('Epoch [{}/{}], Loss: {:.4f}'.format(
-                      epoch+1, n_epoch, loss.item()))
-            if loss.item()<1e-4 or abs(lossp - loss.item())<1e-5:
-                break
+              print('Epoch '+ str(epoch) + ', Loss: '+ str(loss.item()))
+              
+            flag = (loss.item()<1e-4 or 
+                    abs(lossp - loss.item())<1e-6 or
+                    epoch>n_epoch
+                    )
+ 
         end_time = time.time()
         print('>>>time elapsed is: ' + str(end_time - start_time))
         print('>>>final loss is: ' + str(loss.item()))
@@ -492,6 +500,6 @@ print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')
 
 
 agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-agt3.value_gd1(n_epoch=1000, lr=.001)  
+agt3.value_gd1(n_epoch=10000, lr=.001)  
 print('>>>>>> L2 error is ' + str(agt3.err_l2()))
 agt3.plot1d()
