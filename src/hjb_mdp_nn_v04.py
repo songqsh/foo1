@@ -16,17 +16,22 @@ Section 1.2.2 of 191206HJB.pdf
 
 #configurations for PDE
 
-
+import time
 import math
 import random
 import numpy as np
 import matplotlib.pyplot as plt   
+import torch
+import torch.nn as nn
+
+
 
 
 class Pde:
     def __init__(self, n_dim = 2, verbatim = False):
         self.n_dim = n_dim    
         self.lam = 0.
+        self.domain = [0,5]
         #self.verbatim = verbatim
         if verbatim == True:
             print('>>> n_dim: '+str(n_dim))
@@ -45,19 +50,21 @@ class Mdp(Pde):
     def __init__(self, n_dim = 2, n_mesh = 8, verbatim = False):
         super().__init__(n_dim, verbatim)
         self.n_mesh= n_mesh  
+        self.totn_mesh = self.n_mesh*(self.domain[1]-self.domain[0])
         self.h_mesh = 1./self.n_mesh #mesh size
-        self.v_shape = tuple([self.n_mesh + 1]*self.n_dim)
+        self.v_shape = tuple([self.totn_mesh+ 1,]*self.n_dim)
         if verbatim == True:
-            print('>>> n_mesh: '+str(n_mesh))
+            print('>>> n_mesh: '+str(n_mesh)
+                  +' totn_mesh: '+ str(self.totn_mesh))
 
 
     #input: list of index
     #return: physicial coordinate
     def i2s(self,ix): 
-        return [x * self.h_mesh for x in ix]
+        return [x * self.h_mesh+self.domain[0] for x in ix]
     
     def is_interior(self,ix):
-        return all(map(lambda a: 0<a<self.n_mesh, ix))
+        return all(map(lambda a: 0<a<self.totn_mesh, ix))
         
     #input: lists of index and action
     #return: discount rate, running cost, list of next index, list of probability
@@ -129,7 +136,8 @@ class Solver(Mdp):
         self.fd = fd
         #value iteration init
         self.v = np.zeros(self.v_shape) #init
-        self.a_space = tuple([3*n_mesh+1,]*n_dim)
+        self.as_ratio= 3
+        self.a_space = tuple([self.as_ratio*self.totn_mesh+1,]*n_dim)
         self.p_shape = tuple(list(self.v_shape)+[self.n_dim,])
         self.policy = np.zeros(self.p_shape) #init
         self.tol = 1e-5; self.max_iter = 1000
@@ -142,7 +150,7 @@ class Solver(Mdp):
     
     def i2a(self, ix):
         ix = list(ix)
-        return [ix1*1./self.n_mesh for ix1 in ix]
+        return [ix1*self.h_mesh+self.as_ratio*self.domain[0] for ix1 in ix]
     
     #input:
         #list of index and action
@@ -155,7 +163,7 @@ class Solver(Mdp):
             out+=pr1*self.v[tuple(ix1)]
         out *= lam
         return out
- 
+
     #input:
         #list of index
     #return:
@@ -213,9 +221,8 @@ class Solver(Mdp):
                     
     
 
-import time
-
 '''
+
 #begin check ValueIter
 print('>>>>>>>check value iteration<<<<<<<<<')
 
@@ -251,8 +258,8 @@ if ag1.n_dim==1:
     plt.plot(x_cod, ag1.v, x_cod, exact_val)
     plt.show()
 #end check ValueIter                
-'''        
 
+'''
 
 
 ###begin policy evaluation
@@ -369,38 +376,35 @@ print('>>>end check<<<')
 
 
 ########solver__nn starts here
-import torch
-import torch.nn as nn
 
 class solver_nn(Mdp):
     def __init__(self, n_dim = 1, n_mesh = 8, fd = 'cfd'):
         super().__init__(n_dim, n_mesh)
         self.fd = fd
-        self.a_space = tuple([3*n_mesh+1,]*n_dim)
-        h = [self.n_dim,32,8,2]
+        self.as_ratio=3
+        self.a_space = tuple([self.as_ratio*self.totn_mesh+1,]*n_dim)
+        h = [self.n_dim,32,32]
         self.vf = nn.Sequential(
                 nn.Linear(h[0], h[1]),
                 #nn.ReLU(),
-                nn.LeakyReLU(),
-                #nn.Sigmoid(),
+                #nn.LeakyReLU(),
+                nn.Sigmoid(),
                 #nn.Tanh(),
                 nn.Linear(h[1], h[2]),
-                #nn.Sigmoid(),
+                nn.Sigmoid(),
                 #nn.ReLU(),
-                nn.LeakyReLU(),
+                #nn.LeakyReLU(),
                 #nn.Tanh(),
-                nn.Linear(h[2], h[3]),
-                #nn.ReLU(),
-                nn.LeakyReLU(),
-                nn.Linear(h[3], 1),
+                nn.Linear(h[2], 1),
                 ) 
         print(self.vf)
         
-
+   
     
     def i2a(self, ix):
         ix = list(ix)
-        return [ix1*1./self.n_mesh for ix1 in ix]
+        return [ix1*self.h_mesh+self.as_ratio*self.domain[0] for ix1 in ix]    
+    
     
     #input:
         #list of index and action, method
@@ -431,7 +435,7 @@ class solver_nn(Mdp):
     
     def value_gd1(self, n_epoch = 50, lr=.001):
         
-        epoch_per_print = 100
+        epoch_per_print = 20
         
         start_time = time.time()
         
@@ -447,10 +451,10 @@ class solver_nn(Mdp):
                 ix_s = self.i2s(ix)
                 v1 = self.vf(torch.FloatTensor(ix_s))
                 if self.is_interior(ix):
-                    loss+= 50.*(self.greedy(ix)[1]-v1)**2
-                    #loss+= 50.*(self.exact_soln(ix_s)-v1)**2
+                    loss+= 0.01*(self.greedy(ix)[1]-v1)**2
+                    #loss+= 0.01*(self.exact_soln(ix_s)-v1)**2
                 else:
-                    loss+= 100.*(self.term_cost(ix_s) - 
+                    loss+= 0.01*(self.term_cost(ix_s) - 
                               self.vf(torch.FloatTensor(ix_s)))**2                   
             
             optimizer = torch.optim.SGD(
@@ -472,9 +476,8 @@ class solver_nn(Mdp):
         return end_time - start_time, loss.item(), epoch
     
     
-    ##### current work###############
     def value_sgd1(self, n_epoch = 50, lr=.001):
-        mem_len = 10
+        mem_len = 20
         epoch_per_print = 100     
         start_time = time.time()
         
@@ -552,14 +555,15 @@ class solver_nn(Mdp):
             plt.show()
         else:
             print('>>>>plot must be 1d<<<<')
-        
-    
+       
 ##############begin check solver_nn##########
 print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')        
-
-
 agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-tot_time, tot_loss, tot_iter = agt3.value_gd1(n_epoch=100, lr=.001)  
-#tot_time, tot_loss, tot_iter = agt3.value_sgd1(n_epoch=1000, lr= .001)
+tot_time, tot_loss, tot_iter = agt3.value_gd1(n_epoch=10000, lr=.001)  
+#tot_time, tot_loss, tot_iter = agt3.value_sgd1(n_epoch=100, lr= .001)
 print('>>>>>> L2 error is ' + str(agt3.err_l2()))
 agt3.plot1d()
+
+
+
+
