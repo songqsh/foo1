@@ -32,9 +32,11 @@ class Pde:
         self.n_dim = n_dim    
         self.lam = 0.
         self.domain = [0,1]
-        #self.verbatim = verbatim
+        
         if verbatim == True:
             print('>>> n_dim: '+str(n_dim))
+            print('>>> domain: ' + str(self.domain))
+            
     drift = lambda self,s,a: a
     
     run_cost = lambda self,s,a: (
@@ -218,45 +220,76 @@ class Solver(Mdp):
             if n_iter>self.max_iter:
                 break
         return policy_err, n_iter
-                    
     
-
-
+    def plot1d(self):
+        if self.n_dim==1:
+            x_cod = np.zeros(self.v_shape)
+            exact_val = np.zeros(self.v_shape)
+            for ix in deep_iter(*self.v_shape):
+                x_cod[ix] = self.i2s(list(ix))[0]
+                exact_val[ix] = self.exact_soln(self.i2s(list(ix)))
+                                
+            plt.plot(x_cod, self.v, '--', label='aproximation')
+            plt.plot(x_cod, exact_val, label='exact solution')
+            plt.legend()
+            plt.show()
+    
+    def plot2d(self):
+        if self.n_dim==2:
+            from matplotlib import cm
+            from mpl_toolkits.mplot3d import Axes3D
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')       
+            x_cod = np.zeros(self.v_shape)
+            y_cod = np.zeros(self.v_shape)
+            z = self.v
+            for ix in deep_iter(*self.v_shape):
+                x_cod[ix] = agt1.i2s(list(ix))[0]
+                y_cod[ix] = agt1.i2s(list(ix))[1]
+            # Plot the surface.
+            surface = ax.plot_surface(x_cod, y_cod, z, 
+                                      cmap=cm.coolwarm,
+                                      linewidth=0, antialiased=False)
+            plt.show()
+                            
+            
+            
+            
+                    
+    def l2err(self):
+        err = 0.
+        exact_val = np.zeros(agt1.v_shape)
+        
+        for ix in deep_iter(*agt1.v_shape):
+            exact_val[ix] = agt1.exact_soln(agt1.i2s(list(ix)))
+            err += (exact_val[ix]- agt1.v[ix])**2
+        err = err/product(agt1.v_shape)
+        return math.sqrt(err)        
+    
+    
 
 #begin check ValueIter
 print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
-ag1 = Solver(n_dim=1, n_mesh= 8, fd='cfd', verbatim = True)
-err, n_iter = ag1.value_iter()
+agt1 = Solver(n_dim=2, n_mesh= 8, fd='ufd', verbatim = True)
+err, n_iter = agt1.value_iter()
 endtime = time.time()
 
 
 print('>>>elapsed time: ' + str(endtime-startime))
-print('>>>running err:' +str(err)+' n_iter: '+ str(n_iter))
+print('>>>running err:' +str(err))
+print('>>>number of iterations: ' + str(n_iter))
+print('>>>>L2 exact err:'+str(agt1.l2err()))
 
-err = 0
-exact_val = np.zeros(ag1.v_shape)
 
-for ix in deep_iter(*ag1.v_shape):
-    exact_val[ix] = ag1.exact_soln(ag1.i2s(list(ix)))
-    err += (exact_val[ix]- ag1.v[ix])**2
-err = err/product(ag1.v_shape)
-    
-print('>>>>exact err:'+str(err))
-
+agt1.plot1d()    
+agt1.plot2d()
 print('>>>>end check<<<<')
 
 
- 
 
-if ag1.n_dim==1:
-    x_cod = np.zeros(ag1.v_shape)
-    for ix in deep_iter(*ag1.v_shape):
-        x_cod[ix] = ag1.i2s(list(ix))[0]
-        
-    plt.plot(x_cod, ag1.v, x_cod, exact_val)
-    plt.show()
+ 
 #end check ValueIter                
 
 
@@ -318,8 +351,8 @@ class PolicyEvaluation(Mdp):
 ###begin check 
 print('>>>>>>>check policy evaluation<<<<<<<<<')
 starttime = time.time()
-pe = PolicyEvaluation(ag1.policy, n_dim = ag1.n_dim, 
-                      n_mesh=ag1.n_mesh, fd = ag1.fd)
+pe = PolicyEvaluation(agt1.policy, n_dim = agt1.n_dim, 
+                      n_mesh=agt1.n_mesh, fd = agt1.fd)
 err, n_iter = pe.solver()
 endtime = time.time()
 
@@ -327,9 +360,9 @@ print('>>>elapsed time: ' + str(endtime-startime))
 print('>>>running err:' +str(err)+' n_iter: '+ str(n_iter))
 
 err = 0
-for ix in deep_iter(*ag1.v_shape):
-    err += (pe.v[ix]- ag1.v[ix])**2
-err = err/product(ag1.v_shape)
+for ix in deep_iter(*agt1.v_shape):
+    err += (pe.v[ix]- agt1.v[ix])**2
+err = err/product(agt1.v_shape)
     
 print('>>>>err:'+str(err))
 print('>>>>>>>end check <<<<<<<<<')
@@ -343,8 +376,8 @@ print('>>>>>>>end check <<<<<<<<<')
 print('>>>>>>>check policy iteration vs value iteration<<<<<<<<<')
 
 startime = time.time()
-ag2 = Solver(n_dim=ag1.n_dim, n_mesh= ag1.n_mesh, fd= ag1.fd, verbatim = True)
-p_err, n_iter = ag2.policy_iter()
+agt2 = Solver(n_dim=agt1.n_dim, n_mesh= agt1.n_mesh, fd= agt1.fd, verbatim = True)
+p_err, n_iter = agt2.policy_iter()
 endtime = time.time()
 
 
@@ -353,20 +386,20 @@ print('>>>running policy err:' +str(p_err)+' n_iter: '+ str(n_iter))
 
 #compare value iter and policy iter 
 err = 0.
-for ix in deep_iter(*ag2.v_shape):
-    err += (ag1.v[ix]- ag2.v[ix])**2
-err = err/product(ag2.v_shape)
+for ix in deep_iter(*agt2.v_shape):
+    err += (agt1.v[ix]- agt2.v[ix])**2
+err = err/product(agt2.v_shape)
     
 print('>>>>value diff between value-iter and policy-iter:'+str(err))
 
 
 
-if ag2.n_dim==1:
-    x_cod = np.zeros(ag2.v_shape)
-    for ix in deep_iter(*ag2.v_shape):
-        x_cod[ix] = ag2.i2s(list(ix))[0]
+if agt2.n_dim==1:
+    x_cod = np.zeros(agt2.v_shape)
+    for ix in deep_iter(*agt2.v_shape):
+        x_cod[ix] = agt2.i2s(list(ix))[0]
         
-    plt.plot(x_cod, ag2.v, x_cod, ag1.v)
+    plt.plot(x_cod, agt2.v, x_cod, agt1.v)
     plt.show()
     
 print('>>>end check<<<')    
@@ -559,7 +592,7 @@ class solver_nn(Mdp):
 ##############begin check solver_nn##########
 print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')        
 agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-tot_time, tot_loss, tot_iter = agt3.value_gd1(n_epoch=10000, lr=.001)  
+tot_time, tot_loss, tot_iter = agt3.value_gd1(n_epoch=10, lr=.001)  
 #tot_time, tot_loss, tot_iter = agt3.value_sgd1(n_epoch=100, lr= .001)
 print('>>>>>> L2 error is ' + str(agt3.err_l2()))
 agt3.plot1d()
