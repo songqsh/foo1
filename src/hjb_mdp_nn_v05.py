@@ -239,7 +239,7 @@ class Solver(Mdp):
             from matplotlib import cm
             from mpl_toolkits.mplot3d import Axes3D
             fig = plt.figure()
-            ax = fig.gca(projection='3d')       
+            ax = fig.gca(projection=Axes3D.name)
             x_cod = np.zeros(self.v_shape)
             y_cod = np.zeros(self.v_shape)
             z = self.v
@@ -247,7 +247,7 @@ class Solver(Mdp):
                 x_cod[ix] = agt1.i2s(list(ix))[0]
                 y_cod[ix] = agt1.i2s(list(ix))[1]
             # Plot the surface.
-            surface = ax.plot_surface(x_cod, y_cod, z, 
+            ax.plot_surface(x_cod, y_cod, z, 
                                       cmap=cm.coolwarm,
                                       linewidth=0, antialiased=False)
             plt.show()
@@ -272,7 +272,8 @@ class Solver(Mdp):
 print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
-agt1 = Solver(n_dim=2, n_mesh= 8, fd='ufd', verbatim = True)
+#debug: If fd = 'cfd' in the next line, it gives big error. 
+agt1 = Solver(n_dim=1, n_mesh= 8, fd='ufd', verbatim = True)
 err, n_iter = agt1.value_iter()
 endtime = time.time()
 
