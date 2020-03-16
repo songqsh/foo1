@@ -273,7 +273,7 @@ print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
 #debug: If fd = 'cfd' in the next line, it gives big error. 
-agt1 = Solver(n_dim=1, n_mesh= 8, fd='ufd', verbatim = True)
+agt1 = Solver(n_dim=1, n_mesh= 8, fd='cfd', verbatim = True)
 err, n_iter = agt1.value_iter()
 endtime = time.time()
 
