@@ -83,11 +83,11 @@ class Mdp(Pde):
             if self.is_interior(ix):
                 for i in range(self.n_dim):
                     ix1 = ix.copy(); ix1[i]+=1; ix_next += [ix1,]
-                    pr1 = (1+2.*self.h_mesh*b[i])/(self.n_dim*2.0) 
+                    pr1 = (1+1.*self.h_mesh*b[i])/(self.n_dim*2.0) 
                     pr_next += [pr1,]
                 for i in range(self.n_dim):
                     ix1 = ix.copy(); ix1[i]-=1; ix_next += [ix1,]
-                    pr1 = (1-2.*self.h_mesh*b[i])/(self.n_dim*2.0) 
+                    pr1 = (1-1.*self.h_mesh*b[i])/(self.n_dim*2.0) 
                     pr_next += [pr1,]
         elif fd=='ufd':
             c = self.n_dim+sum([abs(b1) for b1 in b])*self.h_mesh
@@ -589,11 +589,11 @@ class solver_nn(Mdp):
             plt.show()
         else:
             print('>>>>plot must be 1d<<<<')
-'''       
+'''
 ##############begin check solver_nn##########
 print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')        
 agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-tot_time, tot_loss, tot_iter = agt3.value_gd1(n_epoch=10, lr=.001)  
+tot_time, tot_loss, tot_iter = agt3.value_gd1(n_epoch=10, lr=.1)  
 #tot_time, tot_loss, tot_iter = agt3.value_sgd1(n_epoch=100, lr= .001)
 print('>>>>>> L2 error is ' + str(agt3.err_l2()))
 agt3.plot1d()
