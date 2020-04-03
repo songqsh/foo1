@@ -19,7 +19,7 @@
 
 \section{Problem setup}
 \subsection{HJB}
-We want to solve a d-dimensions HJB given below:
+We want to solve a d-dimensions linear PDE given below:
 \begin{itemize}
  \item Domain 
  $$O = \{x\in \mathbb R^{d}: 0<x_{i}< 1, i =1,2, \ldots d\}.$$
@@ -57,9 +57,11 @@ $$\frac{\partial}{\partial x_{i}}v(x) \approx \delta_{-he_{i}} v(x)
 := \frac{v(x-he_{i}) - v(x)}{-h}.$$
 Central Finite Difference (CFD) is
 $$\frac{\partial}{\partial x_{i}}v(x) \approx 
-\delta_{\pm h e_{i}} v(x)
+\bar \delta_{h e_{i}} v(x)
 := \frac 1 2 (\delta_{-he_{i}} + \delta_{he_{i}}) v(x)
-= \frac{v(x+he_{i}) - v(x-he_{i})}{2h}.$$
+.$$
+It can be verified that the CFD has the following explicit form:
+$$\bar \delta_{h e_{i}} v(x) = \frac{v(x+he_{i}) - v(x-he_{i})}{2h}.$$
 Second order finite difference operators are the followings:
 $$
 \frac{\partial^{2}}{\partial x_{i}^{2}} v(x)
@@ -72,11 +74,8 @@ $$
 \begin{array}
  {ll}
 \frac{\partial^{2}}{\partial x_{i} \partial x_{j}} v(x) &\approx
-\delta_{\pm he_{i}} \delta_{\pm he_{j}} v(x)
-\\ 
-& \displaystyle
-= \frac{v(x+he_{i}+he_{j}) - v(x+he_{i}-he_{j})
-- v(x-he_{i}+he_{j})+ v(x-he_{i}-he_{j})}{4h^{2}}. 
+\frac 1 2 (\delta_{he_{i}} \delta_{-he_{j}} v(x) + 
+\delta_{he_{j}} \delta_{-he_{i}} v(x))
 \end{array}
 $$
 
@@ -94,7 +93,7 @@ $$
 For simplicity, if we set 
 $$
 \gamma = \frac{d}{d+ h^{2} \lambda}, \
-p^{h}(x \pm he_{i}|x) = \frac 1 {2d} (1 \pm 2h b_{i}(x)), \
+p^{h}(x \pm he_{i}|x) = \frac 1 {2d} (1 \pm h b_{i}(x)), \
 \ell^{h}(x) = \frac{h^{2} \ell(x)}{d},
 $$
 then it yields DPP
