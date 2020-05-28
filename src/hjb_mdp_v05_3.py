@@ -66,11 +66,11 @@ class Mdp(Pde):
             if self.is_interior(ix):
                 for i in range(self.n_dim):
                     ix1 = ix.copy(); ix1[i]+=1; ix_next += [ix1,]
-                    pr1 = (1+2.*self.h_mesh*b[i])/(self.n_dim*2.0) 
+                    pr1 = (1+1.*self.h_mesh*b[i])/(self.n_dim*2.0) 
                     pr_next += [pr1,]
                 for i in range(self.n_dim):
                     ix1 = ix.copy(); ix1[i]-=1; ix_next += [ix1,]
-                    pr1 = (1-2.*self.h_mesh*b[i])/(self.n_dim*2.0) 
+                    pr1 = (1-1.*self.h_mesh*b[i])/(self.n_dim*2.0) 
                     pr_next += [pr1,]
         elif fd=='ufd':
             c = self.n_dim+sum([abs(b1) for b1 in b])*self.h_mesh
@@ -208,7 +208,7 @@ import time
 print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
-ag1 = Solver(n_dim=1, n_mesh= 32, fd='ufd', verbatim = True)
+ag1 = Solver(n_dim=1, n_mesh= 8, fd='cfd', verbatim = True)
 err, n_iter = ag1.value_iter()
 endtime = time.time()
 
@@ -243,7 +243,7 @@ if ag1.n_dim==1:
 
 
 
-###begin policy evaluation
+###begin check policy evaluation
 
 
 class PolicyEvaluation(Mdp):
@@ -296,7 +296,7 @@ class PolicyEvaluation(Mdp):
 ###end policy evaluation
         
 
-###begin check 
+###begin check policy evaluation
 print('>>>>>>>check policy evaluation<<<<<<<<<')
 starttime = time.time()
 pe = PolicyEvaluation(ag1.policy, n_dim = ag1.n_dim, 
