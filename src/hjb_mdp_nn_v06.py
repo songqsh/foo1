@@ -329,12 +329,13 @@ class PolicyEvaluation(Mdp):
 ########solver__nn starts here
 
 class solver_nn(Mdp):
-    def __init__(self, n_dim = 1, n_mesh = 8, fd = 'cfd'):
+    def __init__(self, n_dim = 1, n_mesh = 8, fd = 'cfd', n_neuron = 32):
         super().__init__(n_dim, n_mesh)
         self.fd = fd
         self.as_ratio=3
         self.a_space = tuple([self.as_ratio*self.totn_mesh+1,]*n_dim)
-        h = [self.n_dim,2**6]
+        self.n_neuron = n_neuron
+        h = [self.n_dim,self.n_neuron]
         self.vf = nn.Sequential(
                 nn.Linear(h[0], h[1]),
                 nn.ReLU(),
@@ -384,9 +385,9 @@ class solver_nn(Mdp):
         return self.i2a(a_ix), out_v
                 
     
-    def value_gd1(self, n_epoch = 50, lr=.001):
+    def value_gd1(self, n_epoch = 50, lr=.001, w_in = 30., w_out =1.):
         
-        epoch_per_print = 20
+        epoch_per_print = 2
         epoch_buffer = []
         loss_buffer = []
         start_time = time.time()
@@ -403,9 +404,9 @@ class solver_nn(Mdp):
                 ix_s = self.i2s(ix)
                 v1 = self.vf(torch.FloatTensor(ix_s))
                 if self.is_interior(ix):
-                    loss+= 30.*(self.greedy(ix)[1]-v1)**2
+                    loss+= w_in*(self.greedy(ix)[1]-v1)**2
                 else:
-                    loss+= 1.*(self.term_cost(ix_s) - 
+                    loss+= w_out*(self.term_cost(ix_s) - 
                               self.vf(torch.FloatTensor(ix_s)))**2                   
             
             optimizer = torch.optim.SGD(
@@ -418,9 +419,11 @@ class solver_nn(Mdp):
             epoch_buffer +=[epoch]
             loss_buffer += [loss.item()]
             
+            
             if (epoch) % epoch_per_print == 0:
               print('Epoch '+ str(epoch) + ', Loss: '+ str(loss.item()))
-              
+            
+            
             flag = (loss.item()<1e-5 or 
                     abs(lossp - loss.item())<1e-8 or
                     epoch>n_epoch
@@ -429,57 +432,7 @@ class solver_nn(Mdp):
         end_time = time.time()
         return end_time - start_time, loss.item(), epoch, epoch_buffer, loss_buffer
     
-    
-    def value_sgd1(self, n_epoch = 50, lr=.001):
-        mem_len = 20
-        epoch_per_print = 100     
-        start_time = time.time()
-        
-        flag = False #to stop
-        epoch =0
-        loss = torch.FloatTensor([100.,])
-        
-        while not flag:
-            epoch +=1
-            lossp = loss.item()
-            loss = torch.FloatTensor([0.,])    
-            
-            #randomly choose start point
-            ix = list(np.random.randint(
-                0, high=self.n_mesh+1, size=self.n_dim))
-            ix_s = self.i2s(ix)
-            
-            for i in range(mem_len):
-                v0 = self.vf(torch.FloatTensor(ix_s))
-                if self.is_interior(ix):
-                    a0, v1 = self.greedy(ix)
-                    loss+=50.*(v1-v0)**2
-                    _, _, nixlist = self.step_random(ix,a0,self.fd)
-                else:
-                    v1 = self.term_cost(ix_s)
-                    loss+=100.*(v1-v0)**2
-                    break
-            
-            optimizer = torch.optim.SGD(
-                    self.vf.parameters(), lr, momentum=.8)
-            
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            
-            if (epoch) % epoch_per_print == 0:
-              print('Epoch '+ str(epoch) + ', Loss: '+ str(loss.item()))
-              
-            flag = (loss.item()<1e-4 or 
-                    abs(lossp - loss.item())<1e-6 or
-                    epoch>n_epoch
-                    )
-            #print(loss.item())
- 
-        end_time = time.time()
-        return end_time - start_time, loss.item(), epoch    
-    
-    
+
     
     
         
@@ -521,7 +474,7 @@ print('>>>>>>>check value iteration<<<<<<<<<')
 
 startime = time.time()
 #debug: If fd = 'cfd' in the next line, it gives big error. 
-agt1 = Solver(n_dim=1, n_mesh= 8, fd='cfd', verbatim = True)
+agt1 = Solver(n_dim=2, n_mesh= 8, fd='cfd', verbatim = True)
 err, n_iter = agt1.value_iter()
 endtime = time.time()
 
@@ -602,11 +555,16 @@ if agt2.n_dim==1:
 print('>>>end check<<<')    
 #end check policy iter        
 
+
+
+
+
 ##############begin check solver_nn##########
 print('>>>>>>>>>>begin check solver_nn<<<<<<<<<')        
-agt3 = solver_nn(n_dim=1, n_mesh=8, fd='cfd')
-tot_time, tot_loss, tot_iter, epoch_buffer, loss_buffer = agt3.value_gd1(n_epoch=3000, lr=.01)  
-#tot_time, tot_loss, tot_iter = agt3.value_sgd1(n_epoch=100, lr= .001)
+agt3 = solver_nn(n_dim=2, n_mesh= 8, fd= 'cfd', n_neuron=8)
+tot_time, tot_loss, tot_iter, epoch_buffer, loss_buffer = agt3.value_gd1(
+    n_epoch=1000, lr=.01, w_in = 30., w_out = 1.)  
+
 if agt3.n_dim == 1:
     agt3.plot1d()
 
@@ -615,7 +573,7 @@ plt.plot(epoch_buffer[100:], loss_buffer[100:])
 plt.show()
 print('>>>>>> L2 error is ' + str(agt3.err_l2()))
     
-    
+
     
 
 
