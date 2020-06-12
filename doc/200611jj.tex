@@ -16,14 +16,22 @@
 %\maketitle
 %\section{}
 %\subsection{}
-Let $X$ and $Y$ be two Banach spaces.
+Let $(X, \eta)$ and $(Y, \rho)$ be two Polish spaces.
 $C(X, Y)$ is the set of all continuous mappings $f: X\mapsto Y$.
 For $f, g\in C(X, Y)$, we define
-$$\|f - g\|= \sup_{x\in X} \|f(x) - g(x)\|.$$
+$$d (f, g) = \sup_{x\in X} \rho(f(x),  g(x)).$$
 \begin{enumerate}
 \item
-Prove that $C(X, Y)$ is a Banach space.
-\item If $K \subset Y$ are compact in their own spaces, is $C(X, K)$ compact?
+Prove that $(C(X, Y), d)$ is a Polish space.
+\item If $K \subset Y$ are compact, is $C(X, K)$ compact in $C(X, Y)$?
+\iffalse
+\item Let $F \subset C(X, K)$ be a equicontinuous. This means, $\forall \epsilon >0$, there $\exists \delta>0$, such that
+\begin{itemize}
+\item
+if $\eta(x, y) < \delta$ and $f\in F$, then $\rho(f(x), f(y))<\epsilon$.
+\end{itemize}
+Is $F$ compact in $C(X, Y)$?
+\fi
 \end{enumerate}
 
 
