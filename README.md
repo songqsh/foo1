@@ -28,7 +28,7 @@
 - First order ODE by fixed point theorem - [ipynb](src/ode01.ipynb)
 - Second order ODE by FPT - [ipynb](src/ode02.ipynb)
 - Elliptic Linear PDE by Neural Network - [pdf](doc/191222epde.pdf) - [ipynb](src/elpde1.ipynb)
-- Fourier transform in option pricing - [ipynb](fourier_transform_option.ipynb)
+- Fourier transform in option pricing - [ipynb](src/fourier_transform_option.ipynb)
 - 
 
 
