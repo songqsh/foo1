@@ -23,7 +23,25 @@ $$
 
 
 
-math inline $f(x) = x^2$
+math inline 
+
+$f(x) = x^2$
+$$
+f(x) = x^2
+$$
+inline $\Latex x^2 $
+
+$<x^2>$
+
+
+
+ 
+
+
+
+
+
+
 
 
 
