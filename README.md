@@ -29,6 +29,6 @@
 - Second order ODE by FPT - [ipynb](src/ode02.ipynb)
 - Elliptic Linear PDE by Neural Network - [pdf](doc/191222epde.pdf) - [ipynb](src/elpde1.ipynb)
 - Fourier transform in option pricing - [ipynb](src/fourier_transform_option.ipynb)
-- 
+- Gradient descent - [ipynb](src/gd.ipynb)
 
 
