@@ -30,5 +30,6 @@
 - Elliptic Linear PDE by Neural Network - [pdf](doc/191222epde.pdf) - [ipynb](src/elpde1.ipynb)
 - Fourier transform in option pricing - [ipynb](src/fourier_transform_option.ipynb)
 - Gradient descent - [ipynb](src/gd.ipynb)
+- Stochastic gradient descent (incomplete) - [ipynb](src/sgd.ipynb)
 
 
