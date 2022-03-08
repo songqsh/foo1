@@ -1,7 +1,5 @@
 # foo1
 
-- linear algebra with tensorflow - [ipynb](src/linalg_tf.ipynb)
-- linear regression: linear algebra approach and machine learning approach - [ipynb](src/linreg.ipynb)
 - minimize a smooth function by pytorch optimizer - [ipynb](src/min_fun.ipynb)
 - p: linear regression with pytorch - [ipynb](src/linreg_torch_v01.ipynb)
 - solving linear system by nn - [ipynb](src/solve_llinear_system_nn.ipynb)
