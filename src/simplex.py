@@ -37,9 +37,7 @@ def min_ratio_test(ratio_list):
 
 
 def new_pivot(M_mat):  # M is the tableau
-    row_n, col_n = M_mat.shape
-    row_n = row_n - 1  # number of constraints in the augmented form
-    col_n = col_n - 2  # number of variables in the augmented form
+    row_n, col_n = M_mat.shape - np.array([1, 2])  # number of constraints and number of variables
     optimal_test = min(M_mat[0, range(1, col_n + 1)])
 
     if optimal_test < 0:
@@ -51,6 +49,7 @@ def new_pivot(M_mat):  # M is the tableau
         print(f'The final tableau is \n {pd.DataFrame(M_mat)}')
         print(f'=================================')
         return 0
+
     ratio_list = np.divide(M_mat[range(1, row_n + 1), -1], M_mat[range(1, row_n + 1), pivot_col])
 
     pivot_row = min_ratio_test(ratio_list)
@@ -84,14 +83,4 @@ def simplex_solver(M_mat, display=0):
         pivot_n = new_pivot(M_mat)
 
 
-# test
-
-# input initial tableau
-M = np.array([
-    [1, -3, -5, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 4],
-    [0, 0, 2, 0, 1, 0, 12],
-    [0, 3, 2, 0, 0, 1, 18]
-], dtype=float)
-
-simplex_solver(M, display=1)
+# Test: simplex_v1.ipynb
