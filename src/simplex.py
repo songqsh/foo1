@@ -71,7 +71,7 @@ def simplex_solver(M_mat, display=0):
     print(f'=======================')
     print(pd.DataFrame(M_mat))  # print augmented matrix
 
-    pivot_n = new_pivot(M_mat)
+    pivot_n = new_pivot(M_mat)  # returns new pivot if not pass optimal test, otherwise return zero
     while pivot_n is not 0:
 
         pivoting(M_mat, pivot_n[0], pivot_n[1])
