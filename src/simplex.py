@@ -45,7 +45,11 @@ def new_pivot(M_mat):  # M is the tableau
     if optimal_test < 0:
         pivot_col = np.argmin(M_mat[0, range(1, col_n + 1)]) + 1
     else:
+        print(f'=================================')
         print(f'pass the optimal test')
+        print(f'optimal value is {M_mat[0, -1]}')
+        print(f'The final tableau is \n {pd.DataFrame(M_mat)}')
+        print(f'=================================')
         return 0
     ratio_list = np.divide(M_mat[range(1, row_n + 1), -1], M_mat[range(1, row_n + 1), pivot_col])
 
@@ -58,18 +62,25 @@ def new_pivot(M_mat):  # M is the tableau
 
 
 # simplex solver
-# input: augmented matrix
+# input:
+#   M_mat - initial tableau,
+#   display - 0: no display of intermediate tableau, 1: print all intermediate tableau
 # output: print the updated augmented matrix
-def simplex_solver(M_mat):
+def simplex_solver(M_mat, display=0):
     print(f'{M_mat.shape[0] - 1} constraints and {M_mat.shape[1] - 2} variables')
+    print(f'initial tableau is:')
+    print(f'=======================')
     print(pd.DataFrame(M_mat))  # print augmented matrix
 
     pivot_n = new_pivot(M_mat)
     while pivot_n is not 0:
-        print(f'new pivot is {pivot_n}')
+
         pivoting(M_mat, pivot_n[0], pivot_n[1])
-        print(pd.DataFrame(M_mat))
-        print(f'=======================')
+        if display is not 0:
+            print(f'new pivot is {pivot_n}')
+            print(f'=======================')
+            print(pd.DataFrame(M_mat))
+
         pivot_n = new_pivot(M_mat)
 
 
@@ -83,4 +94,4 @@ M = np.array([
     [0, 3, 2, 0, 0, 1, 18]
 ], dtype=float)
 
-simplex_solver(M)
+simplex_solver(M, display=1)
