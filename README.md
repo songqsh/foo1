@@ -9,7 +9,7 @@
 - fitting two points by nn - [ipynb](src/fitting-two-pts-by-nn.ipynb)
 - fitting three points by nn - [ipynb](src/fit-3-pts-by-nn.ipynb)
 - SB18-Example 4.1-Gridworld -[ipynb](src/sb18-exm-4-1.ipynb)
-- gambbler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
+- gambler's problem: reinforcement learning - [ipynb](src/gambler_v01.ipynb)
 - MDP from HJB - [pdf](doc/191206HJB.pdf) - [ipynb](src/hjb_mdp_05.ipynb)
 - HJB-MDP by NN - [pdf](doc/191206HJB.pdf) - [ipynb](src/hjb_mdp_nn_1.ipynb)
 - 1d MDP with q-table - [ipynb](src/mdp_1d_qtable.ipynb)
