@@ -29,6 +29,7 @@
 - Fourier transform in option pricing - [ipynb](src/fourier_transform_option.ipynb)
 - Gradient descent - [ipynb](src/gd.ipynb)
 - Stochastic gradient descent (incomplete) - [ipynb](src/sgd.ipynb)
+- LP-simplex - [ipynb](src/simplex_v1.ipynb)
 - LP: Simplex method for diet problem - [ipynb](src/simplex_diet.ipynb)
 
 
