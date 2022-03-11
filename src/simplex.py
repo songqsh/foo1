@@ -54,7 +54,8 @@ def new_pivot(M_mat):  # M is the tableau
 
     pivot_row = min_ratio_test(ratio_list)
     if pivot_row is 0:
-        print(f'no leaving variable, here is the ratio list \n {ratio_list}')
+        print(f'no leaving variable, here is the ratio list:')
+        print(f'{ratio_list}')
         return 0
     else:
         return pivot_row, pivot_col
