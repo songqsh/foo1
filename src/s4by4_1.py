@@ -76,8 +76,7 @@ given_nums = [[0, 0, 1],
 vec_c = [0]*n_decision_variables
 for a_given_num in given_nums:
     ind = conversion_3d_1d(a_given_num[0], a_given_num[1], a_given_num[2] - 1)
-    vec_c[ind] = -10.
+    vec_c[ind] = -1.
 
-res = linprog(c=vec_c, A_eq= mat_A, b_eq=vec_b, bounds=[0., 1.])
-print(res)
+
 
