@@ -26,10 +26,11 @@
 - First order ODE by fixed point theorem - [ipynb](src/ode01.ipynb)
 - Second order ODE by FPT - [ipynb](src/ode02.ipynb)
 - Elliptic Linear PDE by Neural Network - [pdf](doc/191222epde.pdf) - [ipynb](src/elpde1.ipynb)
-- Fourier transform in option pricing - [ipynb](src/fourier_transform_option.ipynb)
+- Fourier transforms in option pricing - [ipynb](src/fourier_transform_option.ipynb)
 - The Gradient descent - [ipynb](src/gd.ipynb)
 - Stochastic gradient descent (incomplete) - [ipynb](src/sgd.ipynb)
 - LP-simplex - [ipynb](src/simplex_v1.ipynb)
+- LP-bfs - [ipynb](src/lp_solver_bfs_test.ipynb)
 - Sudoku 4 by 4 - [ipynb](src/sudoku4by4.ipynb)
 
 

@@ -47,26 +47,17 @@ def lp_solver(mat_A, vec_b, vec_c):
     list_of_optimal_bvs = []
     optimal_z = 0
 
-    for bv in bvs:
-        res = bfs(bv, mat_A, vec_b)
-        if type(res) is np.ndarray:
-            z = np.dot(vec_c[bv, ], res)
+    for bv1 in bvs:
+        res1 = bfs(bv1, mat_A, vec_b)
+        if type(res1) is np.ndarray:
+            z = np.dot(vec_c[bv1, ], res1)
             if z > optimal_z:
                 optimal_z = z
-                list_of_optimal_bvs = [bv]
+                list_of_optimal_bvs = [bv1]
             elif z == optimal_z:
-                list_of_optimal_bvs += [bv]
+                list_of_optimal_bvs += [bv1]
 
     return list_of_optimal_bvs, optimal_z
 
 
-# test
-A = np.array([[2., 1., 1, 0, 0], [1., 1, 0, 1, 0], [1., 0, 0, 0, 1]])
-b = np.array([100., 80, 40])
-c = np.array([3, 2, 0., 0, 0])
-
-opt = lp_solver(A, b, c)
-print(f'optimal value is {opt[1]}')
-for bv in opt[0]:
-    res = bfs(bv, A, b)
-    print(f'--- optimal bv is {bv}, and bfs is {res}')
+# test file filename_test.ipynb
