@@ -12,14 +12,18 @@ np.set_printoptions(formatter={'float_kind': float_formatter})
 warnings.filterwarnings("ignore", message="divide by zero encountered in true_divide")
 
 
-# pivoting with (i,j)
-def pivoting(A, i, j):
-    A[i] = A[i] / A[i, j]  # scale to get one in (i,j)
-    n_rows, _ = A.shape
+# pivoting with (row_i,col_i)
+# return value:
+#   0: fail,
+#   1: success
+def pivoting(A_mat, row_i, col_i):
+    A_mat[row_i] = A_mat[row_i] / A_mat[row_i, col_i]  # scale to get one in (row_i,col_i)
+    n_rows, _ = A_mat.shape
     for k in range(n_rows):
-        if k == i:
+        if k == row_i:
             continue  # skip i-row
-        A[k] = A[k] - A[i] * A[k, j]  # replacement to get zero
+        A_mat[k] = A_mat[k] - A_mat[row_i] * A_mat[k, col_i]  # replacement to get zero
+
 
 
 # minimum ratio test
@@ -82,6 +86,5 @@ def simplex_solver(M_mat, display=0):
             print(pd.DataFrame(M_mat))
 
         pivot_n = new_pivot(M_mat)
-
 
 # Test: simplex_v1.ipynb
