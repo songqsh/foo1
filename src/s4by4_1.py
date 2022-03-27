@@ -1,7 +1,7 @@
 # solve sudoku 4 by 4 using linear programing
 
-import numpy as np
-from scipy.optimize import linprog
+# import numpy as np
+# from scipy.optimize import linprog
 
 # sudoku setup
 sudoku_dim = 4
@@ -19,39 +19,39 @@ n_decision_variables = sudoku_dim ** 3
 
 # produce a row of A by checking squares
 def square_condition(row_i, col_i):
-    row = [0] * n_decision_variables  # initialize a row
+    row = [0.] * n_decision_variables  # initialize a row
     for num_i in range(sudoku_dim):
-        ind = conversion_3d_1d(row_i, col_i, num_i)
-        row[ind] = 1.  # coefficient from the constraint
+        ind1 = conversion_3d_1d(row_i, col_i, num_i)
+        row[ind1] = 1.  # coefficient from the constraint
     return row
 
 
 # produce a row of A by checking columns
 def column_condition(row_i, num_i):
-    row = [0] * n_decision_variables  # initialize a row
+    row = [0.] * n_decision_variables  # initialize a row
     for col_i in range(sudoku_dim):
-        ind = conversion_3d_1d(row_i, col_i, num_i)
-        row[ind] = 1.  # coefficient from the constraint
+        ind1 = conversion_3d_1d(row_i, col_i, num_i)
+        row[ind1] = 1.  # coefficient from the constraint
     return row
 
 
 # produce a row of A by checking rows
 def row_condition(col_i, num_i):
-    row = [0] * n_decision_variables  # initialize a row
+    row = [0.] * n_decision_variables  # initialize a row
     for row_i in range(sudoku_dim):
-        ind = conversion_3d_1d(row_i, col_i, num_i)
-        row[ind] = 1.  # coefficient from the constraint
+        ind1 = conversion_3d_1d(row_i, col_i, num_i)
+        row[ind1] = 1.  # coefficient from the constraint
     return row
 
 
 # produce a row of A by checking small boxes
 def box_condition(box_i, num_i):
-    row = [0] * n_decision_variables  # initialize a row
+    row = [0.] * n_decision_variables  # initialize a row
     start_row_i = int(box_i/2)
     start_col_i = int(box_i % 2)
     for element in range(sudoku_dim):
-        ind = conversion_3d_1d(start_row_i + int(element / 2), start_col_i + int(element % 2), num_i)
-        row[ind] = 1.
+        ind1 = conversion_3d_1d(start_row_i + int(element / 2), start_col_i + int(element % 2), num_i)
+        row[ind1] = 1.
     return row
 
 
@@ -65,7 +65,7 @@ for i in range(sudoku_dim):
         mat_A += [row_condition(i, j)]
         mat_A += [box_condition(i, j)]
 
-vec_b = [1] * len(mat_A)
+vec_b = [1.] * len(mat_A)
 
 # a list with given members [row_index, col_index, value]
 given_nums = [[0, 0, 1],
@@ -73,10 +73,7 @@ given_nums = [[0, 0, 1],
               [3, 2, 2],
               [3, 3, 4]]
 # Set up the objective function
-vec_c = [0]*n_decision_variables
+vec_c = [0.]*n_decision_variables
 for a_given_num in given_nums:
     ind = conversion_3d_1d(a_given_num[0], a_given_num[1], a_given_num[2] - 1)
     vec_c[ind] = -1.
-
-
-
