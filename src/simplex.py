@@ -13,17 +13,16 @@ warnings.filterwarnings("ignore", message="divide by zero encountered in true_di
 
 
 # pivoting with (row_i,col_i)
-# return value:
-#   0: fail,
-#   1: success
 def pivoting(A_mat, row_i, col_i):
+    if A_mat[row_i, col_i] == 0:
+        print(f'err msg: no pivoting due to division by zero')
+        return 0
     A_mat[row_i] = A_mat[row_i] / A_mat[row_i, col_i]  # scale to get one in (row_i,col_i)
     n_rows, _ = A_mat.shape
     for k in range(n_rows):
         if k == row_i:
             continue  # skip i-row
         A_mat[k] = A_mat[k] - A_mat[row_i] * A_mat[k, col_i]  # replacement to get zero
-
 
 
 # minimum ratio test
