@@ -101,23 +101,29 @@ for i in range(sudoku_dim):
 
 vec_b = [1.] * len(mat_A)
 
-# An example of a sudoku table
-tab = [[0, 5, 0, 9, 1, 0, 0, 0, 0],
-       [0, 1, 0, 0, 3, 0, 5, 8, 0],
-       [7, 4, 0, 0, 0, 0, 1, 2, 0],
-       [4, 3, 0, 0, 0, 9, 0, 0, 7],
-       [2, 0, 0, 0, 5, 8, 0, 0, 0],
-       [9, 8, 1, 3, 0, 4, 2, 0, 5],
-       [0, 0, 3, 0, 6, 5, 0, 7, 2],
-       [0, 6, 7, 0, 0, 3, 0, 5, 1],
-       [5, 0, 4, 0, 0, 0, 6, 0, 0]
-       ]
 
-vec_c = objective_vector(tab)
+def main(given_table):
+    vec_c = objective_vector(given_table)
 
-res = linprog(c=vec_c, A_eq=mat_A, b_eq=vec_b, bounds=(0, 1), options={"disp": False})
-print(f'nit is {res.nit}')
-print(f'optimal value is {res.fun}')
-tab1 = conversion_solution_tab(res.x)
-for i in range(sudoku_dim):
-    print(tab1[i])
+    res = linprog(c=vec_c, A_eq=mat_A, b_eq=vec_b, bounds=(0, 1), options={"disp": False})
+    print(f'nit is {res.nit}')
+    print(f'optimal value is {res.fun}')
+    tab1 = conversion_solution_tab(res.x)
+    for i in range(sudoku_dim):
+        print(tab1[i])
+
+
+if __name__ == "__main__":
+    # An example of a sudoku table
+    tab = [[0, 5, 0, 9, 1, 0, 0, 0, 0],
+           [0, 1, 0, 0, 3, 0, 5, 8, 0],
+           [7, 4, 0, 0, 0, 0, 1, 2, 0],
+           [4, 3, 0, 0, 0, 9, 0, 0, 7],
+           [2, 0, 0, 0, 5, 8, 0, 0, 0],
+           [9, 8, 1, 3, 0, 4, 2, 0, 5],
+           [0, 0, 3, 0, 6, 5, 0, 7, 2],
+           [0, 6, 7, 0, 0, 3, 0, 5, 1],
+           [5, 0, 4, 0, 0, 0, 6, 0, 0]
+           ]
+
+    main(tab)
