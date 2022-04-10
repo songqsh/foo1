@@ -73,7 +73,7 @@ def simplex_solver(M_mat, display=0):
     print(f'{M_mat.shape[0] - 1} constraints and {M_mat.shape[1] - 2} variables')
     print(f'initial tableau is:')
     print(f'=======================')
-    print(pd.DataFrame(M_mat))  # print augmented matrix
+    print(M_mat)  # print augmented matrix
 
     pivot_n = new_pivot(M_mat)  # returns new pivot if not pass optimal test, otherwise return zero
     while pivot_n is not 0:
@@ -82,8 +82,26 @@ def simplex_solver(M_mat, display=0):
         if display is not 0:
             print(f'new pivot is {pivot_n}')
             print(f'=======================')
-            print(pd.DataFrame(M_mat))
+            print(M_mat)
 
         pivot_n = new_pivot(M_mat)
 
-# Test: simplex_v1.ipynb
+
+def init_tab_standard_lp(A_mat, b_vec, c_vec):
+    n = len(c_vec)  # number of decision variables
+    m = len(A_mat)  # number of constraints
+    row_0 = np.append([1], -1. * np.array(c_vec + [0] * m + [0])).reshape((1, n + m + 2))
+    row_1 = np.append(np.zeros((m, 1)), A_mat, axis=1)
+    row_1 = np.append(row_1, np.eye(m), axis=1)
+    row_1 = np.append(row_1, np.array(b_vec).reshape((m, 1)), axis=1)
+    return np.append(row_0, row_1, axis=0)
+
+
+# More test: simplex_v1.ipynb
+if __name__ == "main":
+    # setup for WG
+    c = [3., 5]
+    A = [[1., 0], [0, 2], [3, 2]]
+    b = [4, 12., 18]
+    init_tab = init_tab_standard_lp(A, b, c)
+    simplex_solver(init_tab, display=0)
