@@ -2,7 +2,6 @@
 
 # import package
 import numpy as np
-import pandas as pd
 import warnings
 
 float_formatter = "{:.2f}".format
@@ -49,7 +48,7 @@ def new_pivot(M_mat):  # M is the tableau
         print(f'=================================')
         print(f'pass the optimal test')
         print(f'optimal value is {M_mat[0, -1]}')
-        print(f'The final tableau is \n {pd.DataFrame(M_mat)}')
+        print(f'The final tableau is \n {M_mat}')
         print(f'=================================')
         return 0
 
@@ -70,14 +69,19 @@ def new_pivot(M_mat):  # M is the tableau
 #   display - 0: no display of intermediate tableau, 1: print all intermediate tableau
 # output: print the updated augmented matrix
 def simplex_solver(M_mat, display=0):
-    print(f'{M_mat.shape[0] - 1} constraints and {M_mat.shape[1] - 2} variables')
+    n_constraints, n_decision_var = np.array(M_mat.shape) - [1, 2]
+    print(f'{n_constraints} constraints and {n_decision_var} variables')
+    # default pivot columns
+    pivots_column_list = [n_decision_var - n_constraints + 1 + i for i in range(n_constraints)]
+    print(f'pivots are: {pivots_column_list}')
     print(f'initial tableau is:')
     print(f'=======================')
-    print(M_mat)  # print augmented matrix
+    print(f'{M_mat}')  # print initial tableau
 
     pivot_n = new_pivot(M_mat)  # returns new pivot if not pass optimal test, otherwise return zero
     while pivot_n is not 0:
-
+        pivots_column_list[pivot_n[0]-1] = pivot_n[1]
+        print(f'pivots are: {pivots_column_list}')
         pivoting(M_mat, pivot_n[0], pivot_n[1])
         if display is not 0:
             print(f'new pivot is {pivot_n}')
@@ -109,5 +113,3 @@ def main():
 # More test: simplex_v1.ipynb
 if __name__ == "__main__":
     main()
-
-
