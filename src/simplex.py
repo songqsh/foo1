@@ -34,7 +34,7 @@ def min_ratio_test(ratio_list):
             pivot_row = i + 1
             min_ratio = ratio_list[i]
     if min_ratio is np.inf:
-        return 0  # no leaving variable
+        return 0  # no leaving variable, this means optimum is unbounded
     else:
         return pivot_row
 
@@ -57,7 +57,7 @@ def new_pivot(M_mat):  # M is the tableau
 
     pivot_row = min_ratio_test(ratio_list)
     if pivot_row is 0:
-        print(f'no leaving variable, here is the ratio list:')
+        print(f'no leaving variable, which means z is unbounded. Here is the ratio list:')
         print(f'{ratio_list}')
         return 0
     else:
