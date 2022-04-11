@@ -97,11 +97,17 @@ def init_tab_standard_lp(A_mat, b_vec, c_vec):
     return np.append(row_0, row_1, axis=0)
 
 
-# More test: simplex_v1.ipynb
-if __name__ == "main":
+def main():
     # setup for WG
     c = [3., 5]
     A = [[1., 0], [0, 2], [3, 2]]
     b = [4, 12., 18]
     init_tab = init_tab_standard_lp(A, b, c)
-    simplex_solver(init_tab, display=0)
+    simplex_solver(init_tab, display=1)
+
+
+# More test: simplex_v1.ipynb
+if __name__ == "__main__":
+    main()
+
+
