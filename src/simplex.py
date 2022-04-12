@@ -73,7 +73,7 @@ def simplex_solver(M_mat, display=0):
     print(f'{n_constraints} constraints and {n_decision_var} variables')
     # default pivot columns
     pivots_column_list = [n_decision_var - n_constraints + 1 + i for i in range(n_constraints)]
-    print(f'pivots are: {pivots_column_list}')
+    print(f'pivot columns are: {pivots_column_list}')
     print(f'initial tableau is:')
     print(f'=======================')
     print(f'{M_mat}')  # print initial tableau
@@ -81,7 +81,7 @@ def simplex_solver(M_mat, display=0):
     pivot_n = new_pivot(M_mat)  # returns new pivot if not pass optimal test, otherwise return zero
     while pivot_n is not 0:
         pivots_column_list[pivot_n[0]-1] = pivot_n[1]
-        print(f'pivots are: {pivots_column_list}')
+        print(f'pivot columns are: {pivots_column_list}')
         pivoting(M_mat, pivot_n[0], pivot_n[1])
         if display is not 0:
             print(f'new pivot is {pivot_n}')
